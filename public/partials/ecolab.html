@@ -961,32 +961,29 @@
                     Test Creator
                 </div>
                 <div class="panel-body">
-                  <div class="col-md-2">
-                      <!-- <input type="text" onchange="updatePATHS()" id="neonodeurl" class="form-control" placeholder="network, ex: http://localhost:30333" value="https://node1.neocompiler.io">-->
-                      <span class="label label-success">Contract Hash</span>
-                      <input type="text" onchange="" id="test_contract_hash" value="------">
-                      <select id="selectionBoxRPCNodes" class="custom-select form-control"></select>
-                  </div>
-                  <div class="col-md-2">
-                      <span class="label label-success">Compilers</span>
-                      <input type="text" onchange="" id="compilers_path" value="------">
-                      <select id="selectionBoxCompilers" class="custom-select form-control"></select>
-                  </div>
-                  <div class="col-md-2">
-                      <span class="label label-success">EcoServices</span>
-                      <input type="text" onchange="" id="eco_services_path" value="------">
-                      <select id="selectionBoxEcoServices" class="custom-select form-control"></select>
-                  </div>
-                  <div class="col-md-2">
-                      <span class="label label-success">NeoScan</span>
-                      <input type="text" onchange="" id="neoscan_path" value="------">
-                      <select id="selectionBoxNeoScan" class="custom-select form-control"></select>
-                  </div>
-                  <div class="col-md-2">
-                      <span class="label label-success">REST Notifications</span>
-                      <input type="text" onchange="" id="rest_notifications_path" value="------">
-                      <select id="selectionBoxRestNotifications" class="custom-select form-control"></select>
-                  </div>
+                    <form id="formTests" action="/test_case" style="margin-top: 10px;" method="post">
+                      <div class="col-md-2">
+                          <!-- <input type="text" onchange="updatePATHS()" id="neonodeurl" class="form-control" placeholder="network, ex: http://localhost:30333" value="https://node1.neocompiler.io">-->
+                          <span class="label label-success">Contract Hash</span>
+                          <input type="text" name="contract_hash" onchange="" id="test_contract_hash" value="">
+                      </div>
+                      <div class="col-md-2">
+                          <span class="label label-success">Event Type</span>
+                          <input type="text" name="event_type" onchange="" id="compilers_path" value="">
+                      </div>
+                      <div class="col-md-2">
+                          <span class="label label-success">Expected Payload Type</span>
+                          <input type="text" name="expected_payload_type" onchange="" id="eco_services_path" value="">
+                      </div>
+                      <div class="col-md-2">
+                          <span class="label label-success">Expected Payload Value</span>
+                          <input type="text" name="expected_payload_value" onchange="" id="neoscan_path" value="">
+                      </div>
+                      <div class="col-md-12">
+                        <button type="submit" id="testbtn" class="btn btn-success btn-sm" style="margin-top:10px" data-toggle="modal" data-target="#TimeInfoModal">Submit</button>
+                      </div>
+                  </form>
+                  <textarea id="resulttests" readonly="readonly" rows="7" cols="10" placeholder="Warning/Errors..." class="form-control"></textarea>
                 </div>
               </div>
           </div>

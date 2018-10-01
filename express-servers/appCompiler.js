@@ -4,6 +4,8 @@ var logger = require('morgan');             // log requests to the console (expr
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var app = express();
 
+const testController = require('./controllers').test_cases;
+
 
 //app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
 app.use(logger('dev'));                                         // log every request to the console
@@ -78,10 +80,8 @@ app.get('/getCompilers', (req, res) => {
 
 
 
-app.get('/', (req, res) => {
-  console.log("Welcome to our NeoCompiler Eco Compilers RPC API");
-  res.status(200).send("Welcome to our NeoCompiler Eco Compilers RPC API");
-});
+app.post('/test_case', testController.create);
+
 
 app.post('/compilex', function(req, res) {
   // Specifies which URL to listen for
@@ -129,7 +129,7 @@ app.post('/compilex', function(req, res) {
 		  var msgret = "{\"output\":\""+msg64+"\",\"avm\":\"\",\"abi\":\"\"}";
 		  res.send(msgret);
 	  }
-	  else{	
+	  else{
 		      var cmddocker = "docker run -e COMPILECODE=" + code64 + " -t --rm " + imagename;
 		      var child = require('child_process').exec(cmddocker, optionsCompile, (e, stdout, stderr)=> {
 
@@ -151,7 +151,7 @@ app.post('/compilex', function(req, res) {
     else {
 	    var msg64 = new Buffer("Unknown Compiler!",'ascii').toString('base64');
 	    var msgret = "{\"output\":\""+msg64+"\",\"avm\":\"\",\"abi\":\"\"}";
-	    res.send(msgret); 
+	    res.send(msgret);
     }
 }); // End of compilex
 
