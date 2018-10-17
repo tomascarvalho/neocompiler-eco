@@ -955,7 +955,18 @@
 
          <!-- ======================================================== -->
          <!-- BEGIN CONFIGURATIONS NODEINFO -->
+
+
           <div class="tab-pane fade" id="tests">
+
+              <div class="panel panel-info" id="divCurrentTests">
+                  <div class="panel-heading">Current tests informative table</div>
+                  <div class="panel-body">
+                      <div id="divCurrentTestsTable" class="table-responsive"></div>
+                      <button type="submit" onClick="searchForTests()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload tests status</button>
+                  </div>
+              </div>
+
               <div class="panel panel-primary">
                 <div class="panel-heading">
                     Test Creator
@@ -965,22 +976,48 @@
                       <div class="col-md-2">
                           <!-- <input type="text" onchange="updatePATHS()" id="neonodeurl" class="form-control" placeholder="network, ex: http://localhost:30333" value="https://node1.neocompiler.io">-->
                           <span class="label label-success">Contract Hash</span>
-                          <input type="text" name="contract_hash" onchange="" id="test_contract_hash" value="">
+                          <input type="text" name="contract_hash" onchange="" id="test_contract_hash" value="" required>
                       </div>
                       <div class="col-md-2">
-                          <span class="label label-success">Event Type</span>
-                          <input type="text" name="event_type" onchange="" id="compilers_path" value="">
+                          <span class="label label-success">Smart Contract Event Type</span>
+                          <select name="event_type" id="test_event_type" required>
+                              <option value="SmartContract.Runtime.Notify">Runtime Notify</option>
+                              <option value="SmartContract.Runtime.Log">Runtime Log</option>
+                              <option value="SmartContract.Execution.Invoke">Execution Invoke</option>
+                              <option value="SmartContract.Execution.Success">Execution Success</option>
+                              <option value="SmartContract.Execution.Fail">Execution Fail</option>
+                              <option value="SmartContract.Verification.Success">Verification Success</option>
+                              <option value="SmartContract.Verification.Fail">Verification Fail</option>
+                              <option value="SmartContract.Storage.Get">Storage Get</option>
+                              <option value="SmartContract.Storage.Put">Storage Put</option>
+                              <option value="SmartContract.Storage.Delete">Storage Delete</option>
+                              <option value="SmartContract.Contract.Create">Contract Create</option>
+                              <option value="SmartContract.Contract.Migrate">Contract Migrate</option>
+                              <option value="SmartContract.Contract.Destroy">Contract Destroy</option>
+                        </select>
                       </div>
                       <div class="col-md-2">
                           <span class="label label-success">Expected Payload Type</span>
-                          <input type="text" name="expected_payload_type" onchange="" id="eco_services_path" value="">
+                          <select name="expected_payload_type" id="test_payload_type" required>
+                              <option value="Signature">Signature</option>
+                              <option value="Boolean">Boolean</option>
+                              <option value="Integer">Integer</option>
+                              <option value="Hash160">Hash160</option>
+                              <option value="Hash256">Hash256</option>
+                              <option value="ByteArray">ByteArray</option>
+                              <option value="PublicKey">PublicKey</option>
+                              <option value="String">String</option>
+                              <option value="Array">Array</option>
+                              <option value="InteropInterface">InteropInterface</option>
+                              <option value="Void">Void</option>
+                          </select>
                       </div>
                       <div class="col-md-2">
                           <span class="label label-success">Expected Payload Value</span>
-                          <input type="text" name="expected_payload_value" onchange="" id="neoscan_path" value="">
+                          <input type="text" name="expected_payload_value" onchange="" id="test_expected_payload_value" value="" required>
                       </div>
                       <div class="col-md-12">
-                        <button type="submit" id="testbtn" class="btn btn-success btn-sm" style="margin-top:10px" data-toggle="modal" data-target="#TimeInfoModal">Submit</button>
+                        <button type="submit" id="testbtn" class="btn btn-success btn-sm" style="margin-top:10px">Submit</button>
                       </div>
                   </form>
                   <textarea id="resulttests" readonly="readonly" rows="7" cols="10" placeholder="Warning/Errors..." class="form-control"></textarea>
@@ -1726,7 +1763,9 @@ def Main():
         ];
 
         var vecRelayedTXs = [];
+        var testsArray = [];
         drawRelayedTXs();
+        drawTestTable();
 
         //Check current webpage and starts with localhost or neocompiler public website
         $(document).ready(function(){
@@ -1735,6 +1774,7 @@ def Main():
                 populateAllWalletData();
                 callFromAllKnownThatHasClaimable();
                 searchForTXs();
+                searchForTests();
             }, 10000); // 30000 milsec
             recoveringPageData();
             populateAllWalletData();

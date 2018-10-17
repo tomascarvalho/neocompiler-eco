@@ -4,8 +4,6 @@ var logger = require('morgan');             // log requests to the console (expr
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var app = express();
 
-const testController = require('./controllers').test_cases;
-
 
 //app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
 app.use(logger('dev'));                                         // log every request to the console
@@ -77,11 +75,6 @@ app.get('/getCompilers', (req, res) => {
     }
   });
 });
-
-
-
-app.post('/test_case', testController.create);
-
 
 app.post('/compilex', function(req, res) {
   // Specifies which URL to listen for
