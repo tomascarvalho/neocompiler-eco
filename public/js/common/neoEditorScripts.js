@@ -208,12 +208,12 @@ $("#formCompile").submit(function (e) {
 				$("#codeabi").val(textAbi);
 
 				// parse ABI json
-				console.log("Parsing ABI json");
+				//console.log("Parsing ABI json");
 				// look for Main function
 				var i = 0;
 				for (i = 0; i < jsonABI["functions"].length; i++)
 				if (jsonABI["functions"][i]["name"] == "Main") {
-					console.log("Found function 'Main' with id=" + i);
+					//console.log("Found function 'Main' with id=" + i);
 					break;
 				}
 
@@ -222,7 +222,7 @@ $("#formCompile").submit(function (e) {
 				$("#contractparamsjs")[0].value = "";
 				$("#contractparamnamesjs")[0].value = "";
 				var j = 0;
-				console.log("Parameter count:" + jsonABI["functions"][i]["parameters"].length);
+				//console.log("Parameter count:" + jsonABI["functions"][i]["parameters"].length);
 				var paramhex = "";
 				var paramnames = "";
 				for (j = 0; j < jsonABI["functions"][i]["parameters"].length; j++) {
@@ -287,7 +287,7 @@ $("#forminvokejs").submit(function (e) {
 	var neonJSParams = [];
 	neonJSParams = JSON.parse($("#invokeparamsjs")[0].value);
 
-	Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams);
+	Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, () => {});
 
 });//End of invoke function
 //===============================================================
@@ -644,25 +644,10 @@ function drawRelayedTXs(){
 		bRestore.onclick = function () {restoreTX(this.value);};
 		bRestore.innerHTML = ':)';
 		txRow.insertCell(-1).appendChild(bRestore);
+	}//Finishes loop that draws each relayed transaction
 
-		//This draw can be deprecated
-		/*$.getJSON(urlToGet, function(result) {
-		//console.log(result);
-		if(result.txid == "not found" || result.vin == null){
-		activationStatus.innerHTML = "<font color=\"blue\">PENDING</font>";
-	}else{
-	activationStatus.innerHTML = "<font color=\"green\">FOUND</font>";
-}
-}).fail(function (result) {
-activationStatus.innerHTML = "<font color=\"red\">FAILED</font>";
-});*/
-
-
-//Check activation status ends
-}//Finishes loop that draws each relayed transaction
-
-document.getElementById("divRelayedTXs").appendChild(table);
-searchForTXs();
+	document.getElementById("divRelayedTXs").appendChild(table);
+	searchForTXs();
 }//Finishe DrawRules function
 //===============================================================
 
@@ -828,13 +813,13 @@ function updateInvokeParamsPy() {
 //===============================================================
 // self update neonjs invoke parameters (in json format)
 function updateInvokeParamsJs() {
-	console.log("updating js json...");
+	//console.log("updating js json...");
 	invokefunc = "";
 	if($("#invokefunctionjs")[0].value != "Main")
 	invokefunc = $("#invokefunctionjs")[0].value; // method
 	var arrayparam = [];
 
-	console.log("function is "+invokefunc);
+	//console.log("function is "+invokefunc);
 	var neonJSParams = [];
 
 	if(invokefunc != "")
@@ -884,12 +869,31 @@ function updateArrayInvokeParamsJs() {
 		$("#cbx_inarray_js3")[0].disabled = true;
 	}
 }
+
 // ==============================================================
 // Tests stuff
 
+const cb = () => {
+	$("#formTests").submit();
+};
+
+$("#formInvokeBeforeTest").submit(function(e) {
+	e.preventDefault();
+	let wI = $("#wallet_invokejsTest")[0].selectedOptions[0].index;
+	let attachgasfeejs = Number($("#attachgasfeejsTest").val());
+	let attachneojs = Number($("#attachneojsTest").val());
+	let attachgasjs = Number($("#attachgasjsTest").val());
+	let invokeScripthash = $("#invokehashjsTest").val();
+
+	let invokefunc = "";
+	let neonJSParams = [];
+	neonJSParams = JSON.parse($("#invokeparamsjsTest")[0].value);
+	let result = Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, cb);
+});
 
 $("#formTests").submit(function (e) {
 	e.preventDefault(); // Prevents the page from refreshing
+	console.log("Was called");
 	var $this = $(this); // `this` refers to the current form element
 	var indata = $("#formTests").serialize();
 	console.log(indata);
@@ -899,16 +903,16 @@ $("#formTests").submit(function (e) {
 		function (data) {
 			$("#testbtn")[0].disabled = false;
 			$("#resulttests").val(JSON.stringify(data));
-			updateTestsArrayAndDraw(data.id, data.contract_hash, data.event_type, data.expected_payload_type, data.expected_payload_value, data.active, data.success);
+			updateTestsArrayAndDraw(data.id, data.contract_hash, data.transaction_hash, data.event_type, data.expected_payload_type, data.expected_payload_value, data.active, data.success);
 		},
 		"json" // The format the response should be in
 	);  //End of POST for Compile
 
 }); //End of form Compile function
 
-function updateTestsArrayAndDraw(id, contract_hash, event_type, expected_payload_type, expected_payload_value, active, success)
+function updateTestsArrayAndDraw(id, contract_hash, transaction_hash, event_type, expected_payload_type, expected_payload_value, active, success)
 {
-	testsArray.push({id:id, contract_hash:contract_hash, event_type:event_type, expected_payload_type:expected_payload_type, expected_payload_value:expected_payload_value, active:active, success:success});
+	testsArray.push({id:id, contract_hash:contract_hash, transaction_hash:transaction_hash, event_type:event_type, expected_payload_type:expected_payload_type, expected_payload_value:expected_payload_value, active:active, success:success});
 	drawTestTable();
 }
 
@@ -932,6 +936,7 @@ function drawTestTable(){
 	let row = table.insertRow(-1);
 	let IDHeader = document.createElement('div');
 	let contractHashHeader = document.createElement('div');
+	let transactionHashHeader = document.createElement('div');
 	let eventTypeHeader = document.createElement('div');
 	let eventPayloadTypeHeader = document.createElement('div');
 	let eventPayloadValueHeader = document.createElement('div');
@@ -942,6 +947,8 @@ function drawTestTable(){
 	row.insertCell(-1).appendChild(IDHeader);
 	contractHashHeader.innerHTML = "<b> Contract Hash </b>";
 	row.insertCell(-1).appendChild(contractHashHeader);
+	transactionHashHeader.innerHTML = "<b> Related Transaction Hash </b>";
+	row.insertCell(-1).appendChild(transactionHashHeader);
 	eventTypeHeader.innerHTML = "<b> Expected Event Type </b>";
 	row.insertCell(-1).appendChild(eventTypeHeader);
 	eventPayloadTypeHeader.innerHTML = "<b> Expected Payload Type </b>";
@@ -974,6 +981,14 @@ function drawTestTable(){
 		inputContractHash.style.width = '250px';
 		inputContractHash.setAttribute("value", testsArray[i].contract_hash);
 		testRow.insertCell(-1).appendChild(inputContractHash);
+
+		let inputTransactionHash = document.createElement("input");
+		inputTransactionHash.setAttribute("name", "testTransactionHash" + i);
+		inputTransactionHash.setAttribute("readonly","true");
+		inputTransactionHash.style.width = '250px';
+		inputTransactionHash.setAttribute("value", testsArray[i].transaction_hash);
+		testRow.insertCell(-1).appendChild(inputTransactionHash);
+
 
 		let inputEventType = document.createElement("input");
 		inputEventType.setAttribute("name", "testEventType"+i);

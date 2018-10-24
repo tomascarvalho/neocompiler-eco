@@ -5,6 +5,7 @@ module.exports = {
         return TestCase
         .create({
             contract_hash: req.body.contract_hash,
+            transaction_hash: req.body.transaction_hash,
             event_type: req.body.event_type,
             expected_payload_type: req.body.expected_payload_type,
             expected_payload_value: req.body.expected_payload_value,

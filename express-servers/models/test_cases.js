@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+		transaction_hash: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
 		event_type: {
 			type: DataTypes.STRING,
 			allowNull: true
