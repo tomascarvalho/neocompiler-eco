@@ -133,6 +133,8 @@ $("#formCompile").submit(function (e) {
 			$("#invokehash")[0].value = $("#contracthash")[0].value;
 			$("#invokehashjs")[0].value = $("#contracthash")[0].value;
 			$("#gsf_contracthash")[0].value = $("#contracthash")[0].value;
+			$("#test_contract_hash")[0].value = $("#contracthash")[0].value;
+			$("#invokehashjsTest")[0].value = $("#contracthash")[0].value;
 
 			var codeabi = atob(data.abi);
 			console.log(codeabi);
@@ -449,6 +451,8 @@ function ImportAVM() {
 			$("#invokehash")[0].value = shash;
 			$("#contracthashjs")[0].value = shash;
 			$("#invokehashjs")[0].value = shash;
+			$("#test_contract_hash")[0].value = shash;
+			$("#invokehashjsTest")[0].value = shash;
 
 			// assuming canonical format
 			$("#contractparamsjs")[0].value = "0710"; // string array
@@ -812,11 +816,11 @@ function updateInvokeParamsPy() {
 
 //===============================================================
 // self update neonjs invoke parameters (in json format)
-function updateInvokeParamsJs() {
+function updateInvokeParamsJs(test='') {
 	//console.log("updating js json...");
 	invokefunc = "";
-	if($("#invokefunctionjs")[0].value != "Main")
-	invokefunc = $("#invokefunctionjs")[0].value; // method
+	if($("#invokefunctionjs"+test)[0].value != "Main")
+	invokefunc = $("#invokefunctionjs"+test)[0].value; // method
 	var arrayparam = [];
 
 	//console.log("function is "+invokefunc);
@@ -825,29 +829,29 @@ function updateInvokeParamsJs() {
 	if(invokefunc != "")
 	pushParams(neonJSParams, "String", invokefunc);
 
-	if($("#invokeparamjsbox1")[0].value != "None") {
-		if($("#cbx_inarray_js1")[0].checked)
-		pushParams(arrayparam, $("#invokeparamjsbox1")[0].value, $("#invokeparamsjs1")[0].value);
+	if($("#invokeparamjsbox1"+test)[0].value != "None") {
+		if($("#cbx_inarray_js1"+test)[0].checked)
+		pushParams(arrayparam, $("#invokeparamjsbox1"+test)[0].value, $("#invokeparamsjs1"+test)[0].value);
 		else
-		pushParams(neonJSParams, $("#invokeparamjsbox1")[0].value, $("#invokeparamsjs1")[0].value);
+		pushParams(neonJSParams, $("#invokeparamjsbox1"+test)[0].value, $("#invokeparamsjs1"+test)[0].value);
 	}
-	if($("#invokeparamjsbox2")[0].value != "None") {
-		if($("#cbx_inarray_js2")[0].checked)
-		pushParams(arrayparam, $("#invokeparamjsbox2")[0].value, $("#invokeparamsjs2")[0].value);
+	if($("#invokeparamjsbox2"+test)[0].value != "None") {
+		if($("#cbx_inarray_js2"+test)[0].checked)
+		pushParams(arrayparam, $("#invokeparamjsbox2"+test)[0].value, $("#invokeparamsjs2"+test)[0].value);
 		else
-		pushParams(neonJSParams, $("#invokeparamjsbox2")[0].value, $("#invokeparamsjs2")[0].value);
+		pushParams(neonJSParams, $("#invokeparamjsbox2"+test)[0].value, $("#invokeparamsjs2"+test)[0].value);
 	}
-	if($("#invokeparamjsbox3")[0].value != "None") {
-		if($("#cbx_inarray_js3")[0].checked)
-		pushParams(arrayparam, $("#invokeparamjsbox3")[0].value, $("#invokeparamsjs3")[0].value);
+	if($("#invokeparamjsbox3"+test)[0].value != "None") {
+		if($("#cbx_inarray_js3"+test)[0].checked)
+		pushParams(arrayparam, $("#invokeparamjsbox3"+test)[0].value, $("#invokeparamsjs3"+test)[0].value);
 		else
-		pushParams(neonJSParams, $("#invokeparamjsbox3")[0].value, $("#invokeparamsjs3")[0].value);
+		pushParams(neonJSParams, $("#invokeparamjsbox3"+test)[0].value, $("#invokeparamsjs3"+test)[0].value);
 	}
 
-	if($("#cbx_usearray_js")[0].checked)
+	if($("#cbx_usearray_js"+test)[0].checked)
 	pushParams(neonJSParams, 'Array', arrayparam);
 
-	$("#invokeparamsjs")[0].value = JSON.stringify(neonJSParams);
+	$("#invokeparamsjs"+test)[0].value = JSON.stringify(neonJSParams);
 }
 
 // block and unblock array checkboxes

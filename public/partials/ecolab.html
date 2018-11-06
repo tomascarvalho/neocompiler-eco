@@ -1416,7 +1416,7 @@ def Main():
                           <div class="col-md-6">
                               <div class="form-group">
                                   <label for="invokeparamsjsTest">Params</label>
-                                  <input id="invokeparamsjsTest" name="invokeparamsjs" class="form-control" value='' placeholder="Invoke Parameters" style="width: 100%"></textarea>
+                                  <input id="invokeparamsjsTest" name="invokeparamsjs" class="form-control" value='' placeholder="Invoke Parameters" style="width: 100%">
                               </div>
                           </div>
                       </div>
@@ -1424,8 +1424,8 @@ def Main():
                       <div class="row">
                           <div class="col-md-3">
                               <div class="form-group">
-                                  <label for="invokefunctionjsTest">Function to Invoke</label> <input type="checkbox" id="cbx_usearray_js" checked onchange="updateArrayInvokeParamsJs()"/> use param array<br/>
-                                  <select id="invokefunctionjsTest" class="custom-select form-control" onchange="updateInvokeParamsJs()">
+                                  <label for="invokefunctionjsTest">Function to Invoke</label> <input type="checkbox" id="cbx_usearray_jsTest" checked onchange="updateArrayInvokeParamsJs('Test')"/> use param array<br/>
+                                  <select id="invokefunctionjsTest" class="custom-select form-control" onchange="updateInvokeParamsJs('Test')">
                                       <option>Main</option>
                                   </select>
                               </div>
@@ -1434,7 +1434,7 @@ def Main():
                           <div class="col-md-1">
                               <div class="form-group">
                                   <label>Type</label>
-                                  <select id="invokeparamjsbox1Test" class="custom-select form-control" onchange="updateInvokeParamsJs()">
+                                  <select id="invokeparamjsbox1Test" class="custom-select form-control" onchange="updateInvokeParamsJs('Test')">
                                       <option>None</option>
                                       <option>String</option>
                                       <option>Address</option>
@@ -1447,14 +1447,14 @@ def Main():
                           <div class="col-md-2">
                               <div class="form-group">
                                   <label>Param 1: </label> <input type="checkbox" id="cbx_inarray_js1Test" checked/> in array<br/>
-                                  <input id="invokeparamsjs1Test" class="form-control" value='' placeholder="Script Param 1" onchange="updateInvokeParamsJs()"/>
+                                  <input id="invokeparamsjs1Test" class="form-control" value='' placeholder="Script Param 1" onchange="updateInvokeParamsJs('Test')"/>
                               </div>
                           </div>
                           <!-- Param 2 -->
                           <div class="col-md-1">
                               <div class="form-group">
                                   <label>Type</label>
-                                  <select id="invokeparamjsbox2Test" class="custom-select form-control" onchange="updateInvokeParamsJs()">
+                                  <select id="invokeparamjsbox2Test" class="custom-select form-control" onchange="updateInvokeParamsJs('Test')">
                                       <option>None</option>
                                       <option>String</option>
                                       <option>Address</option>
@@ -1466,15 +1466,15 @@ def Main():
                           </div>
                           <div class="col-md-2">
                               <div class="form-group">
-                                  <label>Param 2</label> <input type="checkbox" id="cbx_inarray_js2" checked/> in array<br/>
-                                  <input id="invokeparamsjs2Test" class="form-control" value='' placeholder="Script Param 2" onchange="updateInvokeParamsJs()"/>
+                                  <label>Param 2</label> <input type="checkbox" id="cbx_inarray_js2Test" checked/> in array<br/>
+                                  <input id="invokeparamsjs2Test" class="form-control" value='' placeholder="Script Param 2" onchange="updateInvokeParamsJs('Test')"/>
                               </div>
                           </div>
                           <!-- Param 3 -->
                           <div class="col-md-1">
                               <div class="form-group">
                                   <label>Type</label>
-                                  <select id="invokeparamjsbox3Test" class="custom-select form-control" onchange="updateInvokeParamsJs()">
+                                  <select id="invokeparamjsbox3Test" class="custom-select form-control" onchange="updateInvokeParamsJs('Test')">
                                       <option>None</option>
                                       <option>String</option>
                                       <option>Address</option>
@@ -1486,8 +1486,8 @@ def Main():
                           </div>
                           <div class="col-md-2">
                               <div class="form-group">
-                                  <label>Param 3</label> <input type="checkbox" id="cbx_inarray_js3" checked/> in array<br/>
-                                  <input id="invokeparamsjs3Test" class="form-control" value='' placeholder="Script Param 3" onchange="updateInvokeParamsJs()"/>
+                                  <label>Param 3</label> <input type="checkbox" id="cbx_inarray_js3Test" checked/> in array<br/>
+                                  <input id="invokeparamsjs3Test" class="form-control" value='' placeholder="Script Param 3" onchange="updateInvokeParamsJs('Test')"/>
                               </div>
                           </div>
                       </div> <!-- row -->
