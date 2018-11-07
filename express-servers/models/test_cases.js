@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
 	const TestCase = sequelize.define('TestCase', {
 		contract_hash: {
 			type: DataTypes.STRING,
-			allowNull: fakse
+			allowNull: false
 		},
 		transaction_hash: {
 			type: DataTypes.STRING,

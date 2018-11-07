@@ -907,16 +907,16 @@ $("#formTests").submit(function (e) {
 		function (data) {
 			$("#testbtn")[0].disabled = false;
 			$("#resulttests").val(JSON.stringify(data));
-			updateTestsArrayAndDraw(data.id, data.contract_hash, data.transaction_hash, data.event_type, data.expected_payload_type, data.expected_payload_value, data.active, data.success);
+			updateTestsArrayAndDraw(data.id, data.contract_hash, data.transaction_hash, data.event_type, data.expected_payload_type, data.expected_payload_value, data.sc_event, data.active, data.success);
 		},
 		"json" // The format the response should be in
 	);  //End of POST for Compile
 
 }); //End of form Compile function
 
-function updateTestsArrayAndDraw(id, contract_hash, transaction_hash, event_type, expected_payload_type, expected_payload_value, active, success)
+function updateTestsArrayAndDraw(id, contract_hash, transaction_hash, event_type, expected_payload_type, expected_payload_value, sc_event, active, success)
 {
-	testsArray.push({id:id, contract_hash:contract_hash, transaction_hash:transaction_hash, event_type:event_type, expected_payload_type:expected_payload_type, expected_payload_value:expected_payload_value, active:active, success:success});
+	testsArray.push({id:id, contract_hash:contract_hash, transaction_hash:transaction_hash, event_type:event_type, expected_payload_type:expected_payload_type, expected_payload_value:expected_payload_value, sc_event: sc_event, active:active, success:success});
 	drawTestTable();
 }
 
@@ -1016,20 +1016,30 @@ function drawTestTable(){
 		inputTestHasRunned.setAttribute("name", "testHasRunned" + i);
 		inputTestHasRunned.setAttribute("readonly", "true");
 		inputTestHasRunned.setAttribute("value", !testsArray[i].active);
+		inputTestHasRunned.style.width = '50px';
 		testRow.insertCell(-1).appendChild(inputTestHasRunned);
-		console.log("Active: ");
-		console.log(testsArray[i].active);
 
 		let inputTestWasSuccessful = document.createElement("input");
 		inputTestWasSuccessful.setAttribute("name", "inputTestWasSuccessful" + i);
 		inputTestWasSuccessful.setAttribute("readonly", "true");
 		inputTestWasSuccessful.setAttribute("value", testsArray[i].success);
+		inputTestWasSuccessful.style.width = '50px';
 		testRow.insertCell(-1).appendChild(inputTestWasSuccessful);
-		console.log("Success: ");
-		console.log(testsArray[i].success);
+
+		let reRunTestButton = document.createElement("button");
+		reRunTestButton.setAttribute('content', 'test content');
+		reRunTestButton.setAttribute('class', 'btn btn-warning');
+		reRunTestButton.setAttribute('value', "Re-run Test");
+		reRunTestButton.onclick = reRunTest;
+		reRunTestButton.id = i;
+		testRow.insertCell(-1).appendChild(reRunTestButton);
 
 	}
 	document.getElementById("divCurrentTestsTable").appendChild(table);
+}
+
+function reRunTest() {
+	console.log(testsArray[this.id]);
 }
 
 function searchForTests() {
@@ -1047,6 +1057,7 @@ function searchForTest(indexToUpdate, testID){
 			if (!data.active) {
 				testsArray[indexToUpdate].active = data.active;
 				testsArray[indexToUpdate].success = data.success;
+				testsArray[indexToUpdate].sc_event = json.parse(data.sc_event);
 			}
 		},
 		"json" // The format the response should be in
