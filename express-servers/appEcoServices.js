@@ -4,8 +4,6 @@ var logger = require('morgan');             // log requests to the console (expr
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var app = express();
 
-const testController = require('./controllers').test_cases;
-
 app.use(logger('dev'));                                         // log every request to the console
 app.use(bodyParser.urlencoded({                                 // parse application/x-www-form-urlencoded
    parameterLimit: 100000,                // bigger parameter sizes
@@ -69,15 +67,6 @@ app.get('/statusnode/:node', function(req, res) {
     }
   });
 });
-
-app.post('/test_case', testController.create);
-
-app.get('/test_cases', testController.list);
-
-app.get('/test_case/:testID', testController.retrieve);
-
-app.delete('/test_case/:testID', testController.destroy);
-
 
 // ============================================================
 // ================== Socket io ===============================

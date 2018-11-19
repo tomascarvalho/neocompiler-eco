@@ -16,13 +16,13 @@ module.exports = {
     },
     list(req, res) {
         return TestCase
-        .all()
+        .findAll()
         .then(testCases=> res.status(200).send(testCases))
         .catch(error => res.status(400).send(error));
     },
     retrieve(req, res) {
         return TestCase
-        .findById(req.params.testID)
+        .findByPk(req.params.testID)
         .then(testCase => {
             if (!testCase) {
                 return res.status(404).send({
@@ -35,7 +35,7 @@ module.exports = {
     },
     destroy(req, res) {
         return TestCase
-        .findById(req.params.testID)
+        .findByPk(req.params.testID)
         .then(testCase => {
             if (!testCase) {
                 return res.status(400).send({

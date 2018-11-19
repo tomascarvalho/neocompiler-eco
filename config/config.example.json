@@ -2,7 +2,7 @@
     "development": {
         "username": "postgres",
         "password": "postgres",
-        "database": "neotests",
+        "database": "neocompiler",
         "port":     5434,
         "host": "127.0.0.1",
         "dialect": "postgres"

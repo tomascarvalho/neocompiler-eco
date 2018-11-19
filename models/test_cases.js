@@ -1,5 +1,3 @@
-/* jshint indent: 1 */
-
 module.exports = (sequelize, DataTypes) => {
 	const TestCase = sequelize.define('TestCase', {
 		contract_hash: {
