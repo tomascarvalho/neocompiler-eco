@@ -102,7 +102,7 @@ document.getElementById("signup-password-confirm").addEventListener('input', () 
 document.getElementById("signinform").addEventListener('submit', (e) => {
 	$("#signinbtn").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
 	e.preventDefault();
-	let path = window.location.origin + '/login';
+	let path = window.location.origin + '/api/login';
 	console.log(path);
 	let indata = $("#signinform").serialize();
 	console.log(indata);
@@ -111,11 +111,17 @@ document.getElementById("signinform").addEventListener('submit', (e) => {
 		path, // The URL to sent the post to
 		indata,
 		function (data) {
-			console.log(data);
+			localStorage["userInfo"] = JSON.stringify(data);
+			location.reload();
+			// document.getElementById("signinform").reset();
+			// $("#signin-password").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
+			// $('.cd-user-modal').removeClass('is-visible');
+
 		},
 		"json" // The format the response should be in
 	).fail(function() {
-		$("#signinbtn").toggleClass('has-error', true).next('span').toggleClass('is-visible', true);
+		localStorage["userInfo"] = null;
+		$("#signin-password").toggleClass('has-error', true).next('span').toggleClass('is-visible', true);
 	}); //End of POST for signin
 });
 
@@ -123,16 +129,16 @@ document.getElementById("signinform").addEventListener('submit', (e) => {
 document.getElementById("signupform").addEventListener('submit', (e) => {
 	$("#signupbtn").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
 	e.preventDefault();
-	let path = window.location.origin + '/user';
-	console.log(path);
+	let path = window.location.origin + '/api/user';
 	let indata = $("#signupform").serialize();
-	console.log(indata);
-
 	$.post(
 		path, // The URL to sent the post to
 		indata,
 		function (data) {
 			console.log(data);
+			$("#signin-email").val(data.username);
+			$("#signin-link").click();
+			alert("User created with success. Please log in");
 		},
 		"json" // The format the response should be in
 	).fail(function() {

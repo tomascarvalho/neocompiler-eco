@@ -159,6 +159,11 @@
 .cd-form input.has-error {
   border: 1px solid #d76666;
 }
+
+.cd-form input.has-success {
+    border: 1px solid #66d766;
+}
+
 .cd-form input[type=password] {
   /* space left for the HIDE button */
   padding-right: 65px;

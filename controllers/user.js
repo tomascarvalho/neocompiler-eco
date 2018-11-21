@@ -7,7 +7,7 @@ module.exports = {
             email: req.body.email,
             password: req.body.password
         })
-        .then(user => res.status(201).send(user))
+        .then(user => res.status(201).send({username: user.email}))
         .catch(error => res.status(400).send(JSON.parse(error)));
     },
     list(req, res) {

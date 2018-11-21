@@ -5,7 +5,7 @@ var app = express();
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var session = require('express-session');
-var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
+var passport = require('passport'), LocalStrategy = require('passport-local').Strategy, BearerStrategy = require('passport-http-bearer');
 
 app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
 app.use(cookieParser());
@@ -27,6 +27,7 @@ app.use(bodyParser.urlencoded({                                 // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 
+app.set('jwtTokenSecret', '123456ABCDEF');
 
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -49,6 +50,8 @@ const saltRounds = 10;
 
 var User = require('./models').User;
 
+var jwt = require('jwt-simple');
+
 // This is used for auth. http://www.passportjs.org/docs/
 passport.use(new LocalStrategy(
     function(email, password, done) {
@@ -59,11 +62,38 @@ passport.use(new LocalStrategy(
             }
             bcrypt.compare(password, user.password, function(err, res) {
                 if(res) {
-                    return done(null, user);
+                    var expires = new Date();
+                    expires.setDate((new Date()).getDate() + 5);
+                    var token = jwt.encode({
+                        username: user.email,
+                        expires: expires
+                    }, app.get('jwtTokenSecret')); // get this from env
+
+                    user.token = token;
+                    user.save().then(() => {
+                        return done(null, user);
+                    })
                 } else {
                     return done(null, false, { message: 'Invalid email or password.' })
                 }
             });
+        });
+    }
+));
+
+passport.use(new BearerStrategy(
+    function(token, done) {
+        User.findOne({ where: {token: token }}).then(function (user, err) {
+          var decodedToken = jwt.decode(token, app.get('jwtTokenSecret'));
+          if (err) { return done(err); }
+          if (!user) {
+              return done(null, false);
+          }
+          if (new Date(decodedToken.expires) < new Date()) {
+              user.token = null;
+              return done(null, false);
+          }
+          return done(null, user, { scope: 'all' });
         });
     }
 ));
@@ -86,34 +116,48 @@ server.listen(8000 || process.env.PORT, (err) => {
 // ============================================================
 // ================== Test Cases ==============================
 
-app.post('/test_case', testController.create);
+app.post('/test_case', testController.create); // change to api/test.... with auth
 
-app.get('/test_cases', testController.list);
+app.get('/test_cases', testController.list); // change to api/test.... with auth
 
-app.get('/test_case/:testID', testController.retrieve);
+app.get('/test_case/:testID', testController.retrieve); // change to api/test.... with auth
 
-app.delete('/test_case/:testID', testController.destroy);
+app.delete('/api/test_case/:testID',
+    passport.authenticate('bearer'),
+    testController.destroy
+);  // change to api/test.... with auth
 
 // ============================================================
 // ================== Users ===================================
 
-app.post('/user', function(req, res, next) {
+app.post('/api/user', function(req, res, next) {
         bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
             req.body.password = hash;
             next()
         });
     },
-    userController.create
+    userController.create,
 );
 
-app.post('/login',
+app.post('/api/login',
     passport.authenticate('local'),
     function(req, res) {
         // If this function gets called, authentication was successful.
         // `req.user` contains the authenticated user.
-        res.redirect('/users/' + req.user.email);
+        var decodedToken = jwt.decode(req.user.token, app.get('jwtTokenSecret'));
+        console.log(decodedToken);
+        res.status(200).send({ access_token: req.user.token, username: req.user.email });
 });
 
+app.post('/api/logout',
+    passport.authenticate('bearer'),
+    function(req, res) {
+        let user = req.user;
+        user.token = null;
+        user.save().then(() => {
+            res.status(200).send("OK");
+        });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

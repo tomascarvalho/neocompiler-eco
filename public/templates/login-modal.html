@@ -1,7 +1,7 @@
 <div class="cd-user-modal"> <!-- this is the entire modal form, including the background -->
     <div class="cd-user-modal-container"> <!-- this is the container wrapper -->
         <ul class="cd-switcher">
-            <li><a href="#0">Sign in</a></li>
+            <li><a href="#0" id="signin-link">Sign in</a></li>
             <li><a href="#0">New account</a></li>
         </ul>
 
@@ -9,17 +9,17 @@
             <form class="cd-form" id="signinform">
                 <p class="fieldset">
                     <label class="image-replace cd-email" for="signin-email">E-mail</label>
-                    <input class="full-width has-padding has-border" id="signin-email" type="email" name="username" autocomplete="email" placeholder="E-mail" required>
+                    <input class="full-width has-padding has-border" id="signin-email" type="email" name="username" ng-model="username" autocomplete="email" placeholder="E-mail" required>
                 </p>
 
                 <p class="fieldset">
                     <label class="image-replace cd-password" for="signin-password">Password</label>
-                    <input class="full-width has-padding has-border" id="signin-password" type="password" name="password" autocomplete="current-password" placeholder="Password" required>
+                    <input class="full-width has-padding has-border" id="signin-password" type="password" name="password" autocomplete="current-password" ng-model="password" placeholder="Password" required>
+                    <span class="cd-error-message">Invalid email or password!</span>
                 </p>
 
                 <p class="fieldset">
-                    <input class="full-width" id="signinbtn" type="submit" value="Login">
-                    <span class="cd-error-message">Invalid email or password!</span>
+                    <input class="full-width has-padding" type="submit" id="signinbtn" ng-click="login()" value="Login">
                 </p>
             </form>
 
@@ -45,7 +45,7 @@
 
                 <p class="fieldset">
                     <input class="full-width has-padding" type="submit" id="signupbtn" value="Create account">
-                    <span class="cd-error-message"></span>
+                    <span id="signup-message" class="cd-form-bottom-message"></span>
                 </p>
             </form>
 
