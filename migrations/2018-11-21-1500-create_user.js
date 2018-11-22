@@ -1,34 +1,28 @@
+/*Important*/
 module.exports = {
   up: (queryInterface, Sequelize) =>
-    queryInterface.createTable('test_cases', {
+    queryInterface.createTable('users', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      contract_hash: {
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true
+        }
+      },
+      password: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      event_type: {
+      token: {
         type: Sequelize.STRING,
-        allowNull: false,
-      },
-      expected_payload_type: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      expected_payload_value: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-      success: {
-          type: Sequelize.BOOLEAN,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -40,5 +34,5 @@ module.exports = {
       },
     }),
   down: (queryInterface /* , Sequelize */) =>
-    queryInterface.dropTable('test_cases'),
+    queryInterface.dropTable('users'),
 };

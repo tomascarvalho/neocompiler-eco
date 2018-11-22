@@ -16,7 +16,7 @@ module.exports = {
     },
     list(req, res) {
         return TestCase
-        .findAll()
+        .findAll({where: { userId: req.user.id }})
         .then(testCases=> res.status(200).send(testCases))
         .catch(error => res.status(400).send(error));
     },
@@ -41,6 +41,10 @@ module.exports = {
                 return res.status(400).send({
                     message: 'TestCase Not Found',
                 });
+            } if (testCase.userId != req.user.id) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
             }
             return testCase
             .destroy()
@@ -49,4 +53,54 @@ module.exports = {
         })
         .catch(error => res.status(400).send(error));
     },
+    update(req, res) {
+        return TestCase
+        .findByPk(req.params.testID)
+        .then(test_case => {
+            if (!test_case) {
+                return res.status(404).send({
+                    message: 'TestCase Not Found',
+                });
+            }
+            if (testCase.userId != req.user.id) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
+            }
+            return test_case
+            .update({
+                name: req.body.name || test_case.name,
+                description: req.body.description || test_case.description,
+                constract_hash: req.body.contractHash || test_case.contract_hash
+            })
+            .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
+            .catch((error) => res.status(400).send(error));
+        })
+        .catch((error) => res.status(400).send(error));
+    },
+    assignUser(req, res) {
+        return TestCase
+        .findByPk(req.body.testID)
+        .then(test_case => {
+            console.log(test_case.userId);
+            if (!test_case) {
+                return res.status(404).send({
+                    message: 'TestCase Not Found',
+                });
+            }
+            if (test_case.userId != null) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
+            }
+            return test_case
+            .update({
+                userId: req.user.id || test_case.userId,
+            })
+            .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
+            .catch((error) => res.status(400).send(error));
+        })
+        .catch((error) => res.status(400).send(error));
+    },
+
 };

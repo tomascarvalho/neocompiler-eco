@@ -42,6 +42,7 @@ var server = http.createServer(app);
 
 const testController = require('./controllers').test_cases;
 const userController = require('./controllers').user;
+const testSuiteController = require('./controllers').test_suites;
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -116,16 +117,53 @@ server.listen(8000 || process.env.PORT, (err) => {
 // ============================================================
 // ================== Test Cases ==============================
 
-app.post('/test_case', testController.create); // change to api/test.... with auth
+app.post('/api/test_case', testController.create); // change to api/test.... with auth
 
-app.get('/test_cases', testController.list); // change to api/test.... with auth
+app.get('/api/test_cases/',
+    passport.authenticate('bearer'),
+    testController.list
+); // change to api/test.... with auth
 
-app.get('/test_case/:testID', testController.retrieve); // change to api/test.... with auth
+app.get('/api/test_case/:testID', testController.retrieve); // change to api/test.... with auth
 
 app.delete('/api/test_case/:testID',
     passport.authenticate('bearer'),
     testController.destroy
-);  // change to api/test.... with auth
+);
+
+app.put('/api/test_case/',
+    passport.authenticate('bearer'),
+    testController.update
+);
+
+app.put('/api/test_case/user/',
+    passport.authenticate('bearer'),
+    testController.assignUser,
+);
+
+
+// ============================================================
+// ================== Test Suites =============================
+//
+// app.post('/api/test_suite', testSuiteController.create);
+//
+// app.get('/api/test_cases/',
+//     passport.authenticate('bearer'),
+//     testController.list
+// );
+//
+//
+// app.get('/api/test_cases/:userEmail',
+//     passport.authenticate('bearer'),
+//     testC.list
+// ); // change to api/test.... with auth
+//
+// app.get('/test_case/:testID', testController.retrieve); // change to api/test.... with auth
+//
+// app.delete('/api/test_case/:testID',
+//     passport.authenticate('bearer'),
+//     testController.destroy
+// );  // change to api/test.... with auth
 
 // ============================================================
 // ================== Users ===================================

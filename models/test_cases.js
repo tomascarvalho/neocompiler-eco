@@ -35,5 +35,20 @@ module.exports = (sequelize, DataTypes) => {
 	}, {
 		tableName: 'test_cases'
 	});
+
+	TestCase.associate = (models) => {
+	    TestCase.belongsTo(models.TestSuite, {
+	      foreignKey: 'testCaseId',
+	      onDelete: 'CASCADE',
+	    });
+  	};
+
+	TestCase.associate = (models) => {
+	    TestCase.belongsTo(models.User, {
+	      foreignKey: 'userId',
+	      onDelete: 'CASCADE',
+	    });
+  	};
+
 	return TestCase;
 };

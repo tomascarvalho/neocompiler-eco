@@ -1,3 +1,4 @@
+/*Important*/
 module.exports = {
   up: (queryInterface, Sequelize) =>
     queryInterface.createTable('test_cases', {
@@ -27,6 +28,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      sc_event: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       active: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
@@ -42,6 +55,24 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'users',
+          key: 'id',
+          as: 'userId',
+        },
+      },
+      testSuiteId: {
+        type: Sequelize.INTEGER,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'test_suites',
+          key: 'id',
+          as: 'testSuiteId',
+        },
       },
     }),
   down: (queryInterface /* , Sequelize */) =>
