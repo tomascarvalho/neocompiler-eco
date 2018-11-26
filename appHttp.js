@@ -6,14 +6,15 @@ var app = express();
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var session = require('express-session');
-var passport = require('passport'), LocalStrategy = require('passport-local').Strategy, BearerStrategy = require('passport-http-bearer');
+var passport = require('passport'), LocalStrategy = require('passport-local').Strategy,
+    BearerStrategy = require('passport-http-bearer');
 
 app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
 app.use(cookieParser());
 app.use(session({
     resave: false,
     saveUninitialized: true,
-    secret: process.env.SESSION_SECRET || 'secret secret this cannot go to production', // try to load secret from .env
+    secret: process.env.SESSION_SECRET || 'set secret in production', // try to load secret from .env
 })); // We should probably get this from env
 
 app.use(passport.initialize());
@@ -28,7 +29,7 @@ app.use(bodyParser.urlencoded({                                 // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 
-app.set('jwtTokenSecret', '123456ABCDEF');
+app.set('jwtTokenSecret', process.env.JWT_TOKEN_SECRET || 'SETSECRETINPRODUCTION');
 
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
