@@ -62,7 +62,7 @@ module.exports = {
                     message: 'TestCase Not Found',
                 });
             }
-            if (testCase.userId != req.user.id) {
+            if (test_case.userId != null && test_case.userId != req.user.id) {
                 return res.status(403).send({
                     message: 'Forbidden!',
                 });
@@ -71,31 +71,31 @@ module.exports = {
             .update({
                 name: req.body.name || test_case.name,
                 description: req.body.description || test_case.description,
-                constract_hash: req.body.contractHash || test_case.contract_hash
+                contract_hash: req.body.contract_hash || test_case.contract_hash,
+                userId: req.user.id || test_case.userId,
             })
             .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
             .catch((error) => res.status(400).send(error));
         })
         .catch((error) => res.status(400).send(error));
     },
-    assignUser(req, res) {
+    testSuite(req, res) {
         return TestCase
-        .findByPk(req.body.testID)
+        .findByPk(req.params.testID)
         .then(test_case => {
-            console.log(test_case.userId);
             if (!test_case) {
                 return res.status(404).send({
                     message: 'TestCase Not Found',
                 });
             }
-            if (test_case.userId != null) {
-                return res.status(403).send({
-                    message: 'Forbidden!',
-                });
-            }
+            // if (test_case.testSuiteId != null) {
+            //     return res.status(403).send({
+            //         message: 'Forbidden!',
+            //     });
+            // }
             return test_case
             .update({
-                userId: req.user.id || test_case.userId,
+                testSuiteId: req.params.testSuiteID || test_case.testSuiteId,
             })
             .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
             .catch((error) => res.status(400).send(error));

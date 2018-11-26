@@ -1,4 +1,5 @@
 const TestSuite = require('../models').TestSuite;
+const TestCase = require('../models').TestCase;
 
 module.exports = {
     create(req, res) {
@@ -7,12 +8,21 @@ module.exports = {
             name: req.body.name,
             description: req.body.description
         })
-        .then(test_suite => res.status(201).send(test_suite))
-        .catch(error => res.status(400).send(JSON.parse(error)));
+        .then(test_suite => res.status(200).send(test_suite))
+        .catch(error => res.status(400).send(error));
     },
     list(req, res) {
+        console.log(req.user.id);
         return TestSuite
-        .findAll()
+        .findAll({
+          where: {
+              userId: req.user.id
+          },
+          include: [{
+            model: TestCase,
+            as: 'testCases',
+          }]
+        })
         .then(testSuites=> res.status(200).send(testSuites))
         .catch(error => res.status(400).send(error));
     },
@@ -20,7 +30,7 @@ module.exports = {
         return TestSuite
         .findByPk(req.params.testSuiteID,  {
           include: [{
-            model: test_cases,
+            model: TestCase,
             as: 'testCases',
           }],
         })
@@ -42,6 +52,10 @@ module.exports = {
                 return res.status(400).send({
                     message: 'TestSuite Not Found',
                 });
+            } else if (testSuite.userId != null && testSuite.userId != req.user.id) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
             }
             return testSuite
             .destroy()
@@ -49,5 +63,30 @@ module.exports = {
             .catch(error => res.status(400).send(error));
         })
         .catch(error => res.status(400).send(error));
+    },
+    update(req, res) {
+        return TestSuite
+        .findByPk(req.params.testSuiteID)
+        .then(test_suite => {
+            if (!test_suite) {
+                return res.status(404).send({
+                    message: 'TestSuite Not Found',
+                });
+            }
+            if (test_suite.userId != null && test_suite.userId != req.user.id) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
+            }
+            return test_suite
+            .update({
+                name: req.body.name || test_suite.name,
+                description: req.body.description || test_suite.description,
+                userId: req.user.id || test_suite.userId,
+            })
+            .then(() => res.status(200).send(test_suite))  // Send back the updated test_suite.
+            .catch((error) => res.status(400).send(error));
+        })
+        .catch((error) => res.status(400).send(error));
     },
 };

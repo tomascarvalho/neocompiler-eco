@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         },
     }, {
-        tableName: 'test_cases'
+        tableName: 'test_suites'
     });
 
     TestSuite.associate = (models) => {
@@ -17,14 +17,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'testSuiteId',
             as: 'testCases',
         });
-    };
-
-    TestSuite.associate = (models) => {
-	    TestSuite.belongsTo(models.User, {
+        TestSuite.belongsTo(models.User, {
 	      foreignKey: 'userId',
 	      onDelete: 'CASCADE',
 	    });
-  	};
+    };
 
     return TestSuite;
 };

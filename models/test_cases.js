@@ -31,20 +31,27 @@ module.exports = (sequelize, DataTypes) => {
 		success: {
 			type: DataTypes.BOOLEAN,
 			allowNull: true
-		}
+		},
+		name: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		description: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+
 	}, {
 		tableName: 'test_cases'
 	});
 
 	TestCase.associate = (models) => {
 	    TestCase.belongsTo(models.TestSuite, {
-	      foreignKey: 'testCaseId',
+	      foreignKey: 'testSuiteId',
 	      onDelete: 'CASCADE',
 	    });
-  	};
 
-	TestCase.associate = (models) => {
-	    TestCase.belongsTo(models.User, {
+		TestCase.belongsTo(models.User, {
 	      foreignKey: 'userId',
 	      onDelete: 'CASCADE',
 	    });
