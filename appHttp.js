@@ -176,12 +176,11 @@ app.post('/api/user', function(req, res, next) {
 );
 
 app.post('/api/login',
+    // Checks if user exists and if credentials match and generates a new session token
     passport.authenticate('local'),
     function(req, res) {
         // If this function gets called, authentication was successful.
         // `req.user` contains the authenticated user.
-        var decodedToken = jwt.decode(req.user.token, app.get('jwtTokenSecret'));
-        console.log(decodedToken);
         res.status(200).send({ access_token: req.user.token, username: req.user.email });
 });
 
