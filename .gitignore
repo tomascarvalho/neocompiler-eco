@@ -8,3 +8,4 @@ node_modules
 connections.json
 nohup*
 express-servers/config/config.json
+.env
