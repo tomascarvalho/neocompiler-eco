@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express  = require('express');
 var http = require('http');
 var logger = require('morgan');             // log requests to the console (express4)
@@ -12,7 +13,7 @@ app.use(cookieParser());
 app.use(session({
     resave: false,
     saveUninitialized: true,
-    secret: 'secret secret pumpkin eater'
+    secret: process.env.SESSION_SECRET || 'secret secret this cannot go to production', // try to load secret from .env
 })); // We should probably get this from env
 
 app.use(passport.initialize());
