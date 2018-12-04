@@ -29,7 +29,7 @@ module.exports = {
         allowNull: false,
       },
       sc_event: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(1024),
         allowNull: true,
       },
       name: {
@@ -47,6 +47,10 @@ module.exports = {
       success: {
           type: Sequelize.BOOLEAN,
           defaultValue: null,
+      },
+      params: {
+          type: Sequelize.STRING,
+          allowNull: false,
       },
       createdAt: {
         allowNull: false,
