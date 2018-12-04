@@ -40,6 +40,30 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+		attachgasfeejs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		attachneojs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		attachgasjs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		wallet_invokejs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		invokehashjs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		invokeparamsjs: {
+			type: DataTypes.STRING,
+			allowNull: true
+		}
 
 	}, {
 		tableName: 'test_cases'
