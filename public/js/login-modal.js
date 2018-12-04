@@ -103,24 +103,21 @@ document.getElementById("signinform").addEventListener('submit', (e) => {
 	$("#signinbtn").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
 	e.preventDefault();
 	let path = window.location.origin + '/api/login';
-	console.log(path);
 	let indata = $("#signinform").serialize();
-	console.log(indata);
 
 	$.post(
 		path, // The URL to sent the post to
 		indata,
 		function (data) {
-			localStorage["userInfo"] = JSON.stringify(data);
-			location.reload();
-			// document.getElementById("signinform").reset();
-			// $("#signin-password").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
-			// $('.cd-user-modal').removeClass('is-visible');
-
+			sessionStorage["userInfo"] = JSON.stringify(data);
+			$('.cd-user-modal').removeClass("is-visible");
+			document.getElementById('signinform').reset();
+			document.getElementById('signupform').reset();
+			init();
 		},
 		"json" // The format the response should be in
 	).fail(function() {
-		localStorage["userInfo"] = null;
+		sessionStorage["userInfo"] = null;
 		$("#signin-password").toggleClass('has-error', true).next('span').toggleClass('is-visible', true);
 	}); //End of POST for signin
 });
