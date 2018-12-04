@@ -1,4 +1,8 @@
 var userInfo;
+var testsArray = [];
+var testSuitesArray = [];
+var savedTestsArray = [];
+var savedTestSuitesArray = [];
 
 function init() {
     if (sessionStorage.userInfo) {
@@ -6,8 +10,6 @@ function init() {
         checkSessionToken();
     }
 }
-
-
 
 function checkSessionToken() {
     let path = window.location.origin + '/api/user/checkSessionToken';
@@ -20,20 +22,13 @@ function checkSessionToken() {
         },
         success: function (result) {
            setLoggedInView();
+           getUserTests();
+           getUserTestSuites();
         },
         error: function (error) {
             console.log("Failed");
         }
     });
-
-    // $.get(
-    //     path,
-    //     function (data) {
-    //         setLoggedInView();
-    //     },
-    //     "json"
-    // )
-    // .fail(() => console.log("nay"));
 }
 
 function setLoggedInView() {
@@ -56,11 +51,54 @@ function setLoggedInView() {
     }
 }
 
+function getUserTests() {
+    let path = window.location.origin + '/api/test_cases/';
+    let authHeader = 'Bearer ' + userInfo.access_token;
+    $.ajax({
+        url: path,
+        type: 'GET',
+        headers: {
+            'Authorization': authHeader
+        },
+        success: function (result) {
+           result.forEach((testCase) => {
+               savedTestsArray.push(testCase);
+           });
+        },
+        error: function (error) {
+            console.log("Failed");
+        }
+    });
+}
+
+function getUserTestSuites() {
+    let path = window.location.origin + '/api/test_suites/';
+    let authHeader = 'Bearer ' + userInfo.access_token;
+    $.ajax({
+        url: path,
+        type: 'GET',
+        headers: {
+            'Authorization': authHeader
+        },
+        success: function (result) {
+           result.forEach((testSuite) => {
+               savedTestSuitesArray.push(testSuite);
+           });
+        },
+        error: function (error) {
+            console.log("Failed");
+        }
+    });
+}
+
+
 function logout() {
     let path = window.location.origin + '/api/logout/';
     let authHeader = 'Bearer ' + userInfo.access_token;
 
     if (userInfo != null) {
+        userInfo = null;
+        sessionStorage.removeItem('userInfo');
         location.reload();
     }
 
@@ -70,28 +108,10 @@ function logout() {
         headers: {
             'Authorization': authHeader
         },
-        success: function (result) {
-           setLoggedInView();
-        },
         error: function (error) {
-            console.log("Failed");
+            showAlert('Error logging out', 'danger');
         }
     });
-
-    // $.post(
-	// 	path,
-    //     headers: {
-    //         'Authorization': authHeader,
-    //     },
-	// 	function (data) {
-	// 		console.log(data);
-    //         userInfo = null;
-    //         location.reload();
-	// 	},
-    //     "json"
-	// )
-    // .fail(() => console.log("nay"));
-
 }
 
 window.onload = init;
