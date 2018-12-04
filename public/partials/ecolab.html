@@ -1323,10 +1323,18 @@ def Main():
       <div class="tab-pane fade" id="tests">
 
           <div class="panel panel-info" id="divCurrentTests">
-              <div class="panel-heading">Current tests informative table</div>
+              <div class="panel-heading">Current Tests Table</div>
               <div class="panel-body">
                   <div id="divCurrentTestsTable" class="table-responsive"></div>
                   <button type="submit" onClick="searchForTests()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload tests status</button>
+              </div>
+          </div>
+
+          <div class="panel panel-info" id="divCurrentTestSuites">
+              <div class="panel-heading">Current Test Suites Table</div>
+              <div class="panel-body">
+                  <div id="divCurrentTestSuitesTable" class="table-responsive"></div>
+                  <button type="submit" onClick="searchForTestSuites()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload Test Suites</button>
               </div>
           </div>
 
@@ -1335,7 +1343,7 @@ def Main():
                   Test Creator
               </div>
               <div class="panel-body">
-                  <form id="formTests" action="/test_case" style="margin-top: 10px;" method="post">
+                  <form id="formTests" style="margin-top: 10px;" method="post">
                       <div class="col-md-2">
                           <!-- <input type="text" onchange="updatePATHS()" id="neonodeurl" class="form-control" placeholder="network, ex: http://localhost:30333" value="https://node1.neocompiler.io">-->
                           <span class="label label-success">Contract Hash</span>
@@ -1494,13 +1502,31 @@ def Main():
                       <div class="row">
                           <div class="col-md-12">
                               <button type="submit" id="testbtn" class="btn btn-success btn-sm" style="margin-top:10px">Run Test</button>
-                              <button type="submit" id="testsuitaddbtn" class="btn btn-success btn-sm" style="margin-top:10px">Add to Suit</button>
+                              <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#test-suite-modal" style="margin-top:10px">Create Test Suite</button>
+                              <button type="submit" id="testsuitaddbtn" class="btn btn-success btn-sm" style="margin-top:10px">Add to Suite</button>
                           </div>
                       </div> <!-- row -->
                   </form>
                   <textarea id="resulttests" readonly="readonly" rows="7" cols="10" placeholder="Warning/Errors..." class="form-control"></textarea>
               </div>
           </div>
+
+          <div class="panel panel-success" id="divSavedTests">
+              <div class="panel-heading">Saved Tests</div>
+              <div class="panel-body" id="divSavedTestsBody">
+                  <div id="divCurrentTestsTable" class="table-responsive"></div>
+                  <button type="submit" onClick="searchForSavedTests()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload tests</button>
+              </div>
+          </div>
+
+          <div class="panel panel-success" id="divSavedTestSuites">
+            <div class="panel-heading" id="saved-test-suites-panel">Saved Test Suites Table</div>
+            <div class="panel-body" id="divSavedTestSuitesBody">
+                <div id="divSavedTestSuitesTable" class="table-responsive"></div>
+                <button type="submit" onClick="searchForSavedTestSuites()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload Test Suites</button>
+            </div>
+        </div>
+
       </div>
       <!-- END TESTS DIV -->
       <!-- ======================================================== -->
@@ -1523,6 +1549,7 @@ def Main():
 
   <script src="public/js/common/neoEditorScripts.js"></script>
   <script src="public/js/common/testsScripts.js"></script>
+  <script src="public/js/common/testSuiteScripts.js"></script>
   <script src="public/js/common/wallet_AutomaticClaimAndSend.js"></script>
   <script>
       //===============================================================
@@ -1555,7 +1582,6 @@ def Main():
       ];
 
       var vecRelayedTXs = [];
-      var testsArray = [];
       drawRelayedTXs();
 
       //Check current webpage and starts with localhost or neocompiler public website
