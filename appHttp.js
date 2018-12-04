@@ -3,19 +3,18 @@ var express  = require('express');
 var http = require('http');
 var logger = require('morgan');             // log requests to the console (express4)
 var app = express();
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var session = require('express-session');
 var passport = require('passport'), LocalStrategy = require('passport-local').Strategy,
     BearerStrategy = require('passport-http-bearer');
 
 app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
-app.use(cookieParser());
 app.use(session({
     resave: false,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET || 'set secret in production', // try to load secret from .env
-})); // We should probably get this from env
+    cookie: {}
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -30,14 +29,6 @@ app.use(bodyParser.json());                                     // parse applica
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 
 app.set('jwtTokenSecret', process.env.JWT_TOKEN_SECRET || 'SETSECRETINPRODUCTION');
-
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    next();
-});
 
 
 var server = http.createServer(app);
@@ -68,7 +59,7 @@ passport.use(new LocalStrategy(
                     var expires = new Date();
                     expires.setDate((new Date()).getDate() + 5);
                     var token = jwt.encode({
-                        username: user.email,
+                        id: user.id,
                         expires: expires
                     }, app.get('jwtTokenSecret')); // get this from env
 
@@ -92,7 +83,7 @@ passport.use(new BearerStrategy(
           if (!user) {
               return done(null, false);
           }
-          if (new Date(decodedToken.expires) < new Date()) {
+          if (new Date(decodedToken.expires) < new Date() || user.id != decodedToken.id) {
               user.token = null;
               return done(null, false);
           }
@@ -122,6 +113,10 @@ server.listen(8000 || process.env.PORT, (err) => {
 app.post('/api/test_case', testController.create);
 
 app.get('/api/test_cases/',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testController.list
 );
@@ -129,11 +124,19 @@ app.get('/api/test_cases/',
 app.get('/api/test_case/:testID', testController.retrieve);
 
 app.delete('/api/test_case/:testID',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testController.destroy
 );
 
 app.put('/api/test_case/:testID',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testController.update
 );
@@ -151,16 +154,28 @@ app.post('/api/test_suite/', testSuiteController.create);
 app.get('/api/test_suite/:testSuiteID', testSuiteController.retrieve);
 
 app.get('/api/test_suites/',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testSuiteController.list
 );
 
 app.put('/api/test_suite/:testSuiteID',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testSuiteController.update
 )
 
 app.delete('/api/test_suite/:testSuiteID',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     testSuiteController.destroy
 );
@@ -177,22 +192,43 @@ app.post('/api/user', function(req, res, next) {
     userController.create,
 );
 
+app.get('/api/user/checkSessionToken',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        else { next(); }
+    },
+    passport.authenticate('bearer'),
+    function (req, res){
+        res.status(200).send({status: "Ok", sessionID: req.sessionID });
+    }
+);
+
 app.post('/api/login',
     // Checks if user exists and if credentials match and generates a new session token
     passport.authenticate('local'),
     function(req, res) {
         // If this function gets called, authentication was successful.
         // `req.user` contains the authenticated user.
-        res.status(200).send({ access_token: req.user.token, username: req.user.email });
+        req.login(req.user, (err) => {
+            if (err) { res.status(500).send("Internal Server Error"); }
+        });
+        res.status(200).send({ access_token: req.user.token});
 });
 
-app.post('/api/logout',
+app.post('/api/logout/',
+    function (req, res, next) {
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        next();
+    },
     passport.authenticate('bearer'),
     function(req, res) {
         let user = req.user;
         user.token = null;
         user.save().then(() => {
-            res.status(200).send("OK");
+            req.session.destroy(function(err) {
+                if (err) { res.status(500).send("Internal Server Error") ;}
+                res.status(200).send("OK");
+            })
         });
 });
 
