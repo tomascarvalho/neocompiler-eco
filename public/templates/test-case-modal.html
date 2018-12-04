@@ -1,0 +1,35 @@
+<!-- Modal -->
+<div id="test-case-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Save Test Case</h4>
+      </div>
+      <div class="modal-body">
+          <form class="cd-form" id="test-case-form">
+              <input type="hidden" name="testCaseId" id="testCaseId" value=""/>
+              <p class="fieldset">
+                  <label class="image-replace cd-email" for="test-case-name">Name</label>
+                  <input class="full-width has-padding has-border" id="test-case-name" type="text" name="name" placeholder="Test Case Name" required>
+              </p>
+
+              <p class="fieldset">
+                  <label class="image-replace cd-email" for="test-case-description">Description</label>
+                  <input class="full-width has-padding has-border" id="test-case-description" type="text" name="description" placeholder="Test Case Description" required>
+              </p>
+
+              <p class="fieldset">
+                  <input class="full-width has-padding" type="submit" id="save-test-case-button" value="Save">
+              </p>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="close-test-modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
