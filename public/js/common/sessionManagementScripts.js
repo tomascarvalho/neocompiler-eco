@@ -26,7 +26,8 @@ function checkSessionToken() {
            getUserTestSuites();
         },
         error: function (error) {
-            console.log("Failed");
+            userInfo = null;
+            sessionStorage.removeItem('userInfo');
         }
     });
 }
