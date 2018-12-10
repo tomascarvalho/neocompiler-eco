@@ -1323,18 +1323,19 @@ def Main():
       <div class="tab-pane fade" id="tests">
 
           <div class="panel panel-info" id="divCurrentTests">
-              <div class="panel-heading">Current Tests Table</div>
-              <div class="panel-body">
+              <div class="panel-heading">Temporary Tests Table</div>
+              <div class="panel-body" id="divCurrentTestsBody">
                   <div id="divCurrentTestsTable" class="table-responsive"></div>
                   <button type="submit" onClick="searchForTests()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload tests status</button>
               </div>
           </div>
 
           <div class="panel panel-info" id="divCurrentTestSuites">
-              <div class="panel-heading">Current Test Suites Table</div>
-              <div class="panel-body">
+              <div class="panel-heading">Temporary Test Suites Table</div>
+              <div class="panel-body" id="divCurrentTestSuitesBody">
                   <div id="divCurrentTestSuitesTable" class="table-responsive"></div>
                   <button type="submit" onClick="searchForTestSuites()" id="btnDrawTests" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Reload Test Suites</button>
+                  <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#test-suite-modal" style="margin-bottom: 5px;">Create Test Suite</button>
               </div>
           </div>
 
@@ -1502,8 +1503,8 @@ def Main():
                       <div class="row">
                           <div class="col-md-12">
                               <button type="submit" id="testbtn" class="btn btn-success btn-sm" style="margin-top:10px">Run Test</button>
-                              <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#test-suite-modal" style="margin-top:10px">Create Test Suite</button>
-                              <button type="submit" id="testsuitaddbtn" class="btn btn-success btn-sm" style="margin-top:10px">Add to Suite</button>
+                              <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#test-case-modal" style="margin-top:10px">Create Test</button>
+                              <button type="button" id="testsuitaddbtn" class="btn btn-success btn-sm open-addToSuiteModal" data-toggle="modal" data-target="#pick-test-suite-modal" data-id="" style="margin-top:10px">Add to Suite</button>
                           </div>
                       </div> <!-- row -->
                   </form>
