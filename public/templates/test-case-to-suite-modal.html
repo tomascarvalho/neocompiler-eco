@@ -1,0 +1,50 @@
+<!-- Modal -->
+<div id="pick-test-suite-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Test to Test Suite</h4>
+            </div>
+            <div class="modal-body">
+                <form class="cd-form" id="pick-test-suite-form">
+                    <input type="hidden" id="testCaseId" value=""/>
+                    <p class="fieldset">
+                        <label class="image-replace cd-email" for="test-suite-name">Select Test Suite</label>
+                        <select class="full-width has-padding has-border" id="select-test-suite-id" name="testSuiteID" required>
+                        </select>
+                        <span id="warning-span"></span>
+                    </p>
+                    <p class="fieldset">
+                        <input class="full-width has-padding" type="submit" id="add-to-suite-button" value="Add">
+                    </p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="close-add-to-test-suite-modal">Close</button>
+            </div>
+        </div>
+  
+    </div>
+</div>
+
+<script>
+    $('#pick-test-suite-modal').on('shown.bs.modal', function (e) {
+        $("#select-test-suite-id").find('option').remove();
+        if (testSuitesArray.length == 0  && savedTestSuitesArray.length == 0){
+            $("#warning-span").text("To add a test to a test suite, please create a test suite!");
+        } else {
+            $("#warning-span").text("");
+        }
+        for (let i = 0; i < testSuitesArray.length; i++) {
+            $("#select-test-suite-id").append(new Option(testSuitesArray[i].id + ' - ' + testSuitesArray[i].name, testSuitesArray[i].id ));   
+        }
+        if (userInfo != null) {
+            for (let i = 0; i < savedTestSuitesArray.length; i++) {
+                $("#select-test-suite-id").append(new Option(savedTestSuitesArray[i].id + ' - ' + savedTestSuitesArray[i].name, savedTestSuitesArray[i].id ));   
+            }
+        }
+    });
+</script>
