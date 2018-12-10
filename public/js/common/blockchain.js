@@ -468,7 +468,7 @@ function myAsyncFunction(url) {
 }
 
 
-function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash, contract_operation, nodeToCall, networkToCall, neonJSParams, callback){
+function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash, contract_operation, nodeToCall, networkToCall, neonJSParams, callback, testCase){
     return new Promise((resolve, reject) => {
         console.log("Invoke '" + contract_scripthash + "' function '" + contract_operation + "' with params '" + neonJSParams+"'");
 
@@ -578,14 +578,16 @@ function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash
               if(typeof(res.response.result) == "boolean") { // 2.X
                   updateVecRelayedTXsAndDraw(res.response.txid,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
                   $("#transactionHash").val(res.response.txid);
+                  callback(testCase, res.response.txid);
               }
               else { // 3.X
             	  updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
                   $("#transactionHash").val(res.response.hash);
+                  callback(testCase, res.response.txid);
               }
             }
 
-            callback();
+            
 
         }).catch(err => {
          console.log(err);
