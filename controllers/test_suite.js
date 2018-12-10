@@ -12,7 +12,6 @@ module.exports = {
         .catch(error => res.status(400).send(error));
     },
     list(req, res) {
-        console.log(req.user.id);
         return TestSuite
         .findAll({
           where: {
@@ -88,5 +87,5 @@ module.exports = {
             .catch((error) => res.status(400).send(error));
         })
         .catch((error) => res.status(400).send(error));
-    },
+    }
 };
