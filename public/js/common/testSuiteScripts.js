@@ -1,11 +1,85 @@
 // ==============================================================
 // Test Suite Scripts
 
-// function updateTestsArrayAndDraw(id, contract_hash, transaction_hash, event_type, expected_payload_type, expected_payload_value, sc_event, active, success)
-// {
-// 	testsArray.push({id:id, contract_hash:contract_hash, transaction_hash:transaction_hash, event_type:event_type, expected_payload_type:expected_payload_type, expected_payload_value:expected_payload_value, sc_event: sc_event, active:active, success:success});
-// 	drawTestTable('divCurrentTests');
-// }
+function addToTestSuitesArray(testSuiteId, testCase) {
+	for (let i = 0; i < testSuitesArray.length; i++) {
+		if (testSuitesArray[i].id == testSuiteId) {
+			testSuitesArray[i].testCases.push(testCase);
+			return true;
+		}
+	}
+	return false;
+}
+
+function removeFromTestSuitesArray(id) {
+	for (let i = 0; i <testSuitesArray.length; i++) {
+		if (testSuitesArray[i].id == id) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function removeFromSavedTestSuitesArray(id) {
+	for (let i = 0; i <savedTestSuitesArray.length; i++) {
+		if (savedTestSuitesArray[i].id == id) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function replaceTestSuite(id, newSuite) {
+	for (let i = 0; i < testSuitesArray.length; i++) {
+		if (testSuitesArray[i].id == id) {
+			testSuitesArray[i] = newSuite;
+			return true;
+		}
+	}
+	return false;
+}
+
+function replaceSavedTestSuite(id, newSuite) {
+	for (let i = 0; i < savedTestSuitesArray.length; i++) {
+		if (savedTestSuitesArray[i].id == id) {
+			savedTestSuitesArray[i] = newSuite;
+			return true;
+		}
+	}
+	return false;
+}
+
+function removeTestFromTestSuite(testCaseId, testSuiteId) {
+	for (let i = 0; i < testSuitesArray.length; i++) {
+		if (testSuitesArray[i].id == testSuiteId) {
+			for (let j = 0; j < testSuitesArray[i].testCases.length; j++) {
+				if (testSuitesArray[i].testCases[j].id == testCaseId) {
+					testSuitesArray[i].testCases.splice(j, 1);
+					drawTestSuiteTable('divCurrentTestSuites');
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+
+}
+
+function removeTestFromSavedTestSuite(testCaseId, testSuiteId) {
+	for (let i = 0; i < savedTestSuitesArray.length; i++) {
+		if (savedTestSuitesArray[i].id == testSuiteId) {
+			for (let j = 0; j < savedTestSuitesArray[i].testCases.length; j++) {
+				if (savedTestSuitesArray[i].testCases[j].id == testCaseId) {
+					savedTestSuitesArray[i].testCases.splice(j, 1);
+					drawTestSuiteTable('divSavedTestSuites');
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+
+}
 
 function deleteTestSuite(arrayPos){
 	if(arrayPos < testSuitesArray.length && arrayPos > -1)
@@ -14,6 +88,37 @@ function deleteTestSuite(arrayPos){
 		drawTestTable('divCurrentTestSuites');
 	} else{
 		alert("Cannot remove test with ID " + arrayPos + " from set of tests with size " + testsArray.length);
+	}
+}
+
+function deleteTestFromSuite(testCase) {
+	if (confirm("Are you sure you want to remove this test from the test suite?")){
+		let testSuiteId = testCase.testSuiteId;
+		let url = window.location.origin + '/api/test_case/' + testCase.id + '/test_suite/0';
+		let authHeader = '';
+		if (userInfo != null) {
+			authHeader = 'Bearer ' + userInfo.access_token;
+		}
+		$.ajax({
+			url: url,
+			type: 'PUT',
+			headers: {
+				'Authorization': authHeader
+			},
+			success: function (result) {
+				if (result.testSuiteID == null) {
+					console.log("Success");
+				}
+				if (!removeFromSavedTestsArray(result.id, testSuiteId)) {
+					testsArray.push(result);
+				}
+				showAlert('Test case removed from suite with success', 'success');
+			},
+			error: function (error) {
+				showAlert('Error removing test from test suite', 'danger');
+			}
+		});
+		updateAllTables();
 	}
 }
 
@@ -52,16 +157,15 @@ function drawTestSuiteTable(tableId) {
 	if (toDeleteTable) {
 		toDeleteTable.parentNode.removeChild(toDeleteTable);
 	}
-
-	if (tableId == 'divSavedTestSuites' && userInfo == null) {
-		showAlert('You must be logged in order to see your saved tests', 'danger');
-		return;
+	let toDeleteInnerTables = document.getElementsByClassName(tableId + 'cases');
+	for (let a = 0; a < toDeleteInnerTables.length; a++ ) {
+		toDeleteInnerTables[a].parentNode.removeChild(toDeleteInnerTables[a]);
 	}
 
 	let table = document.createElement("table");
 	table.id = tableId + '-innerTable';
    	table.setAttribute('class', 'table');
-   	// table.style.width = '2000px';
+   	document.getElementById(tableId).insertBefore(table, document.getElementById(tableId + 'Body'));
 
 	let row = table.insertRow(-1);
 	
@@ -98,11 +202,12 @@ function drawTestSuiteTable(tableId) {
 	const cycle = (arr, tableId) => {
 		for (i = 0; i < arr.length; i++) {
 			let testSuiteRow = table.insertRow(-1);
+			testSuiteRow.id = i;
 
 			let button = document.createElement('button');
 			button.setAttribute('content', 'test content');
 			button.setAttribute('class', 'btn btn-danger');
-			button.setAttribute('value', arr[i].id);
+			button.setAttribute('value', i);
 
 			if (tableId == 'divCurrentTestSuites') {
 				button.onclick = function () {deleteTestSuite(this.value);};
@@ -111,7 +216,7 @@ function drawTestSuiteTable(tableId) {
 				button.onclick = function () {deleteSavedTestSuite(this.value);};
 			}
 			
-			button.innerHTML = arr[i].id;
+			button.textContent = arr[i].id;
 			testSuiteRow.insertCell(-1).appendChild(document.createElement('div')).appendChild(button);
 
 			let inputName = document.createElement("span");
@@ -125,38 +230,40 @@ function drawTestSuiteTable(tableId) {
 			testSuiteRow.insertCell(-1).appendChild(inputDescription);
 
 			let numberOfTestCases = document.createElement("span");
+			let num;
+			arr[i].testCases? num = arr[i].testCases.length: num = 0;
+
 			numberOfTestCases.setAttribute("name", "nTestCases" + i);
-			numberOfTestCases.textContent = arr[i].testCases.length;
+			numberOfTestCases.textContent = num;
+
 			testSuiteRow.insertCell(-1).appendChild(numberOfTestCases);
 
-			let optionalInputOne = document.createElement("input");
-			let optionalInputTwo = document.createElement("input");
+			let optionalInputOne = document.createElement("span");
+			let optionalInputTwo = document.createElement("span");
 			
-			if (tableId == 'divCurrentTests') {
+			if (tableId == 'divCurrentTestSuites') {
 				optionalInputOne.setAttribute("name", "testSuiteHasRunned" + i);
-				optionalInputOne.setAttribute("readonly", "true");
-				optionalInputOne.setAttribute("value", "True");
+				optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
+				optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
 
-				optionalInputTwo.setAttribute("value", "True");
+				for (let j = 0; j < num; j++) {
+					optionalInputOne.setAttribute("class", "fa fa-check");
+					optionalInputTwo.setAttribute("class", "fa fa-check");
 
-				for (let j = 0; j < arr[i].testCases.length; j++) {
 					if (arr[i].testCases[j].active) {
-						optionalInputOne.setAttribute("value", "False");
-						optionalInputTwo.setAttribute("value", "In Progress");
+						optionalInputOne.setAttribute("class", "fa fa-times");
 						break;
 					} 
-					if (!arr[i].testCases[j].success) {
-						optionalInputTwo.setAttribute("value", "False");
+					if (!arr[i].testCases[j].success || arr[i].testCases[j].success == null) {
+						optionalInputTwo.setAttribute("class", "fa fa-times");
+						break;
 					}
 				}
 				
-				// optionalInputOne.style.width = '50px';
-				testRow.insertCell(-1).appendChild(optionalInputOne);
+				testSuiteRow.insertCell(-1).appendChild(optionalInputOne);
 
 				optionalInputTwo.setAttribute("name", "inputTestSuiteWasSuccessful" + i);
-				optionalInputTwo.setAttribute("readonly", "true");
-				optionalInputTwo.style.width = '50px';
-				testRow.insertCell(-1).appendChild(optionalInputTwo);
+				testSuiteRow.insertCell(-1).appendChild(optionalInputTwo);
 			}
 
 			if (tableId == 'divSavedTests') {
@@ -173,43 +280,37 @@ function drawTestSuiteTable(tableId) {
 				testRow.insertCell(-1).appendChild(optionalInputTwo);
 			}
 
-			let reRunTestSuiteButton = document.createElement("button");
-			reRunTestSuiteButton.setAttribute('content', 'test content');
-			reRunTestSuiteButton.setAttribute('class', 'btn btn-warning');
-			reRunTestSuiteButton.innerHTML = 'Run';
-
-			reRunTestSuiteButton.onclick = runTestSuite;
-			reRunTestSuiteButton.id = i;
-			testSuiteRow.insertCell(-1).appendChild(reRunTestSuiteButton);
+			let runTestSuiteButton = document.createElement("button");
+			runTestSuiteButton.setAttribute('content', 'test content');
+			runTestSuiteButton.setAttribute('class', 'btn btn-warning');
+			runTestSuiteButton.innerHTML = 'Run';
+			runTestSuiteButton.id = i;
+			runTestSuiteButton.data = arr[i];
+			runTestSuiteButton.onclick = function () { runTestSuite(this.data); };
+			num == 0 ? runTestSuiteButton.disabled = true: runTestSuiteButton.disabled = false;
+			testSuiteRow.insertCell(-1).appendChild(runTestSuiteButton);
 
 			if (userInfo != null) {
 				let saveTestSuiteButton = document.createElement("button");
 				saveTestSuiteButton.setAttribute('content', 'test content');
-				saveTestSuiteButton.setAttribute('class', 'btn btn-warning btn-sm open-testSuiteModal');
-				if (tableId == 'divCurrentTests') {
-					saveTestSuiteButton.innerHTML = "Save";
+				saveTestSuiteButton.setAttribute('class', 'btn btn-warning open-testSuiteModal');
+				saveTestSuiteButton.setAttribute("data-id", arr[i].id);
+				saveTestSuiteButton.setAttribute("data-name", arr[i].name);
+				saveTestSuiteButton.setAttribute("data-description", arr[i].description);
+				if (tableId == 'divCurrentTestSuites') {
+					saveTestSuiteButton.textContent = "Save";
 				} else {
-					saveTestSuiteButton.innerHTML = 'Edit';
+					saveTestSuiteButton.textContent = 'Edit';
 				}
 				saveTestSuiteButton.setAttribute('data-toggle', 'modal');
-				saveTestSuiteButton.setAttribute('data-target', '#test-case-modal')
-				saveTestSuiteButton.setAttribute('data-id', arr[i].id);
+				saveTestSuiteButton.setAttribute('data-target', '#test-suite-modal')
+
 				testSuiteRow.insertCell(-1).appendChild(saveTestSuiteButton);
 			}
-
-			let toDeleteTable = document.getElementById(tableId + '-innerTable');
-			if (toDeleteTable)
-				toDeleteTable.parentNode.removeChild(toDeleteTable);
-
-			if (tableId == 'divSavedTests' && userInfo == null) {
-				showAlert('You must be logged in order to see your saved tests', 'danger');
-				return;
-			}
-			let div = document.createElement('div');
+		
 			let innerTable = document.createElement("table");
-			innerTable.id = table.id + '-innerTable';
-			innerTable.setAttribute('class', 'table');
-			innerTable.style.width = '20px';
+			innerTable.id = tableId + 'TestCaseTable' + i;
+			innerTable.setAttribute('class', 'table ' + tableId + 'cases');
 
 			let innerTableRow = innerTable.insertRow(-1);
 			let IDHeader = document.createElement('div');
@@ -232,7 +333,7 @@ function drawTestSuiteTable(tableId) {
 			innerTableRow.insertCell(-1).appendChild(IDHeader);
 			contractHashHeader.innerHTML = "<b> Contract Hash </b>";
 			innerTableRow.insertCell(-1).appendChild(contractHashHeader);
-			if (tableId == 'divCurrentTests') {
+			if (tableId == 'divCurrentTestSuites') {
 				let transactionHashHeader = document.createElement('div');
 				transactionHashHeader.innerHTML = "<b> Related Transaction Hash </b>";
 				innerTableRow.insertCell(-1).appendChild(transactionHashHeader);
@@ -246,23 +347,19 @@ function drawTestSuiteTable(tableId) {
 			innerTableRow.insertCell(-1).appendChild(optionalHeaderOne);
 			innerTableRow.insertCell(-1).appendChild(optionalHeaderTwo);
 			
-			for (let j = 0; j < arr[i].testCases.length; j++) {
+			for (let j = 0; j < num; j++) {
 				let testRow = innerTable.insertRow(-1);
 
 
 				let button = document.createElement('button');
 				button.setAttribute('content', 'test content');
 				button.setAttribute('class', 'btn btn-danger');
-				button.setAttribute('value', arr[i].testCases[j].id);
+				button.setAttribute('value', j);
+				button.data = arr[i].testCases[j];
 
-				if (tableId == 'divCurrentTestSuites') {
-					button.onclick = function () {deleteTestFromSuite(this.value);};
-				}
-
-				if (tableId == 'divSavedTestSuites') {
-					button.onclick = function () {deleteSavedTestFromSuite(this.value);};
-				}
-				button.innerHTML = arr[i].id;
+				button.onclick = function () { deleteTestFromSuite(this.data); };
+		
+				button.innerHTML = arr[i].testCases[j].id;
 				testRow.insertCell(-1).appendChild(button);
 
 				let inputContractHash = document.createElement("input");
@@ -299,19 +396,20 @@ function drawTestSuiteTable(tableId) {
 				inputEventPayloadValue.setAttribute("value", arr[i].testCases[j].expected_payload_value);
 				testRow.insertCell(-1).appendChild(inputEventPayloadValue);
 
-				let optionalInputOne = document.createElement("input");
-				let optionalInputTwo = document.createElement("input");
-				optionalInputOne.style.width = '200px';
-				optionalInputTwo.style.width = '200px';
-				optionalInputOne.setAttribute("readonly", "true");
-				optionalInputTwo.setAttribute("readonly", "true");
+				let optionalInputOne = document.createElement("span");
+				let optionalInputTwo = document.createElement("span");
 				
 
 				if (tableId == 'divCurrentTestSuites') {
-					optionalInputOne.setAttribute("name", "testHasRunned" + i);
-					optionalInputOne.setAttribute("value", !arr[i].testCases[j].active);
-					optionalInputTwo.setAttribute("name", "inputTestWasSuccessful" + i);
-					optionalInputTwo.setAttribute("value", arr[i].testCases[j].success);
+					
+					if (arr[i].testCases[j].active) {
+						optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
+						optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+					} else {
+						arr[i].testCases[j].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
+						optionalInputOne.setAttribute('class', 'fa fa-check');
+					}
+					
 				}
 
 				if (tableId == 'divSavedTestSuites') {
@@ -328,23 +426,24 @@ function drawTestSuiteTable(tableId) {
 				let reRunTestButton = document.createElement("button");
 				reRunTestButton.setAttribute('content', 'test content');
 				reRunTestButton.setAttribute('class', 'btn btn-warning');
-				if (tableId == 'divCurrentTestSuites') {
-					reRunTestButton.innerHTML = "Re-Run";
+				reRunTestButton.data = arr[i].testCases[j];
+				if (arr[i].testCases[j].active || arr[i].testCases[j].active == null) {
+					reRunTestButton.textContent= "Re-Run";
 				} else {
-					reRunTestButton.innerHTML = 'Run';
+					reRunTestButton.textContent = 'Run';
 				}
-				reRunTestButton.onclick = reRunTest;
+				reRunTestButton.onclick = function () { reRunTest(this.data); };
 				reRunTestButton.id = i;
 				testRow.insertCell(-1).appendChild(reRunTestButton);
 
 				if (userInfo != null) {
 					let saveTestButton = document.createElement("button");
 					saveTestButton.setAttribute('content', 'test content');
-					saveTestButton.setAttribute('class', 'btn btn-warning btn-sm open-testCaseModal');
+					saveTestButton.setAttribute('class', 'btn btn-warning open-testCaseModal');
 					if (tableId == 'divCurrentTestSuites') {
-						saveTestButton.innerHTML = "Save";
+						saveTestButton.textContent = "Save";
 					} else {
-						saveTestButton.innerHTML = 'Edit';
+						saveTestButton.textContent = 'Edit';
 					}
 					saveTestButton.setAttribute('data-toggle', 'modal');
 					saveTestButton.setAttribute('data-target', '#test-case-modal')
@@ -354,19 +453,22 @@ function drawTestSuiteTable(tableId) {
 
 				let addToSuiteButton = document.createElement("button");
 				addToSuiteButton.setAttribute('content', 'test content');
-				addToSuiteButton.setAttribute('class', 'btn btn-warning');
+				addToSuiteButton.setAttribute('class', 'btn btn-warning open-addToSuiteModal');
+				addToSuiteButton.setAttribute('data-id', arr[i].testCases[j].id);
+				addToSuiteButton.setAttribute('data-toggle', 'modal');
+				addToSuiteButton.setAttribute('data-target', '#pick-test-suite-modal')
 				addToSuiteButton.innerHTML = "Add To Suite";
 				addToSuiteButton.onclick = addToSuiteButton;
 				addToSuiteButton.id = j;
 				testRow.insertCell(-1).appendChild(addToSuiteButton);
 			}
-		
-			innerTable.hidden = true;
-			testSuiteRow.onclick = () => { 
-				innerTable.hidden ? innerTable.hidden = false : innerTable.hidden = true;
+			innerTable.hidden = true;;
+			testSuiteRow.onclick = () => {
+				console.log(innerTable.id);
+				document.getElementById(innerTable.id).hidden = !document.getElementById(innerTable.id).hidden;
 			};
-			document.getElementById('tests').appendChild(innerTable);
-			
+			console.log(innerTable);
+			document.getElementById(tableId).appendChild(innerTable);
 		}
 	};
 
@@ -375,66 +477,106 @@ function drawTestSuiteTable(tableId) {
 	} else {
 		cycle(savedTestSuitesArray, tableId);
 	}
-
-	document.getElementById(tableId).insertBefore(table, document.getElementById('divSavedTestSuitesBody'));
 }
 
-$(document).on("click", ".open-testCaseModal", function () {
-	let testCaseId= $(this).data('id');
-	$(".modal-body #testCaseId").val(testCaseId);
+$(document).on("click", ".open-testSuiteModal", function () {
+	let testSuiteId = $(this).data('id');
+	let testSuiteName = $(this).data('name');
+	let testSuiteDescription = $(this).data('description');
+
+	if (testSuiteId) {
+		$(".modal-body #testSuiteId").val(testSuiteId);
+		$("#testSuiteModalTitle").innerText = "Edit Test Suite";
+		$("#test-suite-name").val(testSuiteName);
+		$("#test-suite-description").val(testSuiteDescription);
+	} else {
+		$(".modal-body #testSuiteId").val("");
+	}
 });
 
 
+// Creating (POST) a new test suite or Editing (PUT) a saved test suite
 $("#test-suite-form").submit(function (e) {
-	let path = window.location.origin + '/api/test_suite/';
-	console.log(path);
-    let authHeader = 'Bearer ' + userInfo.access_token;
 	e.preventDefault(); // Prevents the page from refreshing
+   	$("#close-test-modal").click();
+   	let indata = $('input[name!=testSuiteId]', this).serialize();
+	let testSuiteId = $('input[name=testSuiteId]', this).val();
+	let path = window.location.origin + '/api/test_suite/';
+	path = path + testSuiteId;
+
+	if (testSuiteId != '') {
+		type = 'PUT';
+	} else {
+		type = 'POST';
+	}
+	let authHeader = '';
+	if (userInfo != null)
+		authHeader = 'Bearer ' + userInfo.access_token;
+
 	$("#close-test-suite-modal").click();
-	let indata = $(this).serialize();
-	console.log(path);
-    $.ajax({
-        url: path,
-        type: 'POST',
-        headers: {
-            'Authorization': authHeader
-        },
-		data: indata,
-        success: function (result) {
-       		testSuitesArray.push(result);
-	   		showAlert('Test suite created with success.', 'success');
-        },
-        error: function (error) {
-        	showAlert('Error creating test suite.', 'danger');
-        }
-    });
+
+   	$.ajax({
+	   	url: path,
+	   	type: type,
+	   	headers: {
+		   	'Authorization': authHeader
+	   	},
+	   	data: indata,
+	   	success: function (result) {
+			if (type == 'POST') {
+				testSuitesArray.push(result);
+				drawTestSuiteTable('divCurrentTestSuites');
+				showAlert('Test suite created with success.', 'success');
+			} else {
+				if (removeFromTestSuitesArray(result.id)) {
+					savedTestSuitesArray.push(result);
+				} else {
+					replaceSavedTestSuite(result.id, result);
+				} 
+				drawTestSuiteTable('divSavedTestSuites');
+				showAlert('Test suite edited with success.', 'success');
+			}
+			
+			
+	  	},
+	   	error: function (error) {
+		   	showAlert('Error saving test.', 'danger');
+	   }
+   	});
 
 });
 
-//TODO
-function runTestSuite() {
-	console.log(savedTestSuitesArray[this.id]);
-}
-
-function searchForTestSuites() {
-	drawTestSuiteTable('divCurrentTestSuites');
+function runTestSuite(testSuite) {
+	for (let i = 0; i < testSuite.testCases.length; i++) {
+		reRunTest(testSuite.testCases[i]);
+	}
 }
 
 function searchForSavedTestSuites() {
-	drawTestSuiteTable('divSavedTestSuites');
+	if (userInfo == null) {
+		showAlert("You must be logged in in order to see your saved test suites", "danger");
+		return;
+	}
+	updateAllTables();
 }
 
-function searchForTest(indexToUpdate, testID) {
-	let path = window.location.origin + '/api/test_case/' + testID;
-	$.get(
-		path, // Gets the URL to sent the post to
-		function (data) {
-			if (!data.active) {
-				testsArray[indexToUpdate].active = data.active;
-				testsArray[indexToUpdate].success = data.success;
-				testsArray[indexToUpdate].sc_event = JSON.parse(data.sc_event);
-			}
-		},
-		"json" // The format the response should be in
-	); //End of GET test_case
+function searchForTestSuites() {
+	for (let i = 0; i < testSuitesArray.length; i++) {
+		searchForTestSuite(i, testSuitesArray[i].id);
+	}
+}
+
+function searchForTestSuite(indexToUpdate, testSuiteID) {
+	let path = window.location.origin + '/api/test_suite/' + testSuiteID;
+	$.ajax({
+        url: path,
+        type: 'GET',
+        success: function (result) {
+		   testSuitesArray[indexToUpdate] = result;
+		   drawTestSuiteTable('divCurrentTestSuites');
+        },
+        error: function (error) {
+            alert("Error getting test suite", "danger");
+        }
+    });
 }

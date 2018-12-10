@@ -1,7 +1,40 @@
 // ==============================================================
 // Tests Scripts
 
-function cb(){
+function removeFromTestsArray(id) {
+	for (let i = 0; i < testsArray.length; i++) {
+		if (testsArray[i].id == id) {
+			testsArray.pop(i);
+			drawTestTable('divCurrentTestsTable');
+			return true;
+		}
+	}
+	return false;
+}
+
+function removeFromSavedTestsArray(id) {
+	for (let i = 0; i < savedTestsArray.length; i++) {
+		if (savedTestsArray[i].id == id) {
+			savedTestsArray.pop(i);
+			drawTestTable('divCurrentSavedTestsTable');
+			return true;
+		}
+	}
+	return false;
+}
+
+function replaceSavedTest(id, newTest) {
+	for (let i = 0; savedTestsArray.length; i++) {
+		if (savedTestsArray[i].id == id) {
+			savedTestsArray[i] = newTest;
+			drawTestTable('divCurrentSavedTestsTable');
+			return true;
+		}
+	}
+	return false;
+}
+
+function cb(a, b){
 	$("#formTests").submit();
 };
 
@@ -16,7 +49,7 @@ $("#formInvokeBeforeTest").submit(function(e) {
 	let invokefunc = "";
 	let neonJSParams = [];
 	neonJSParams = JSON.parse($("#invokeparamsjsTest")[0].value);
-	let result = Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, cb);
+	Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, cb);
 });
 
 $("#formTests").submit(function (e) {
@@ -30,27 +63,50 @@ $("#formTests").submit(function (e) {
 		function (data) {
 			$("#testbtn")[0].disabled = false;
 			$("#resulttests").val(JSON.stringify(data));
-			updateTestsArrayAndDraw(data.id, data.contract_hash, data.transaction_hash, data.event_type, data.expected_payload_type, data.expected_payload_value, data.sc_event, data.active, data.success);
+			testsArray.push(data);
+			updateAllTables();
 		},
 		"json" // The format the response should be in
-	);  //End of POST for Compile
+	);
 
-}); //End of form Compile function
+});
 
-function updateTestsArrayAndDraw(id, contract_hash, transaction_hash, event_type, expected_payload_type, expected_payload_value, sc_event, active, success)
-{
-	testsArray.push({
-		id, 
-		contract_hash, 
-		transaction_hash, 
-		event_type, 
-		expected_payload_type,
-		expected_payload_value,
-		sc_event,
-		active, 
-		success
+function reRunTest(testCase) {
+	$("#test_contract_hash").val(testCase.contract_hash);
+	$("#test_event_type").val(testCase.event_type);
+	$("#test_payload_type").val(testCase.expected_payload_type);
+	$("#test_expected_payload_value").val(testCase.expected_payload_value);
+	let wI = Number(testCase.wallet_invokejs[testCase.wallet_invokejs.length-1]);
+	let invokefunc = "";
+	let neonJSParams = JSON.parse(testCase.invokeparamsjs)
+	Invoke(KNOWN_ADDRESSES[wI].addressBase58, KNOWN_ADDRESSES[wI].pKeyWif, Number(testCase.attachgasfeejs), Number(testCase.attachneojs), Number(testCase.attachgasjs), testCase.invokehashjs, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, editTest, testCase);
+}
+
+
+function editTest(testCase, txHash) {
+	testCase.transaction_hash = txHash;
+	let path = window.location.origin + '/api/test_case/' + testCase.id;
+	let data = $.param(testCase);
+	$.ajax({
+		url: path,
+		type: 'PUT',
+		data: data
 	});
-	drawTestTable('divCurrentTests');
+}
+
+function editSavedTest(testCase, txHash) {
+	testCase.transaction_hash = txHash;
+	let path = window.location.origin + '/api/test_case/' + testCase.id;
+	let authHeader = 'Bearer ' + userInfo.access_token;
+	let data = $.param(data);
+	$.ajax({
+		url: path,
+		type: 'PUT',
+		headers: {
+			'Authorization': authHeader
+		},
+		data: data
+	});
 }
 
 function deleteTest(arrayPos){
@@ -106,7 +162,7 @@ function drawTestTable(tableId){
 	let table = document.createElement("table");
 	table.id = tableId + '-innerTable';
 	table.setAttribute('class', 'table');
-	table.style.width = '20px';
+	
 
 	let row = table.insertRow(-1);
 	let IDHeader = document.createElement('div');
@@ -158,7 +214,7 @@ function drawTestTable(tableId){
 			if (tableId == 'divSavedTests') {
 				button.onclick = function () {deleteSavedTest(this.value);};
 			}
-			button.innerHTML = arr[i].id;
+			button.textContent = arr[i].id;
 			testRow.insertCell(-1).appendChild(button);
 
 			let inputContractHash = document.createElement("input");
@@ -195,19 +251,16 @@ function drawTestTable(tableId){
 			inputEventPayloadValue.setAttribute("value", arr[i].expected_payload_value);
 			testRow.insertCell(-1).appendChild(inputEventPayloadValue);
 
-			let optionalInputOne = document.createElement("input");
-			let optionalInputTwo = document.createElement("input");
-			optionalInputOne.style.width = '200px';
-			optionalInputTwo.style.width = '200px';
+			let optionalInputOne = document.createElement("span");
+			let optionalInputTwo = document.createElement("span");
+
 			optionalInputOne.setAttribute("readonly", "true");
 			optionalInputTwo.setAttribute("readonly", "true");
 			
 
 			if (tableId == 'divCurrentTests') {
-				optionalInputOne.setAttribute("name", "testHasRunned" + i);
-				optionalInputOne.setAttribute("value", !arr[i].active);
-				optionalInputTwo.setAttribute("name", "inputTestWasSuccessful" + i);
-				optionalInputTwo.setAttribute("value", arr[i].success);
+				arr[i].active? optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin"): optionalInputOne.setAttribute("class", "fa fa-check");
+				arr[i].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
 			}
 
 			if (tableId == 'divSavedTests') {
@@ -230,14 +283,14 @@ function drawTestTable(tableId){
 				reRunTestButton.innerHTML = 'Run';
 			}
 			reRunTestButton.data = arr[i];
-			reRunTestButton.onclick = reRunTest;
-			reRunTestButton.id = i;
+			reRunTestButton.onclick = function () { reRunTest(this.data); };
+			reRunTestButton.id = tableId + 'reTest' + i;
 			testRow.insertCell(-1).appendChild(reRunTestButton);
 
 			if (userInfo != null) {
 				let saveTestButton = document.createElement("button");
 				saveTestButton.setAttribute('content', 'test content');
-				saveTestButton.setAttribute('class', 'btn btn-warning btn-sm open-testCaseModal');
+				saveTestButton.setAttribute('class', 'btn btn-warning open-testCaseModal');
 				if (tableId == 'divCurrentTests') {
 					saveTestButton.innerHTML = "Save";
 				} else {
@@ -251,9 +304,11 @@ function drawTestTable(tableId){
 
 			let addToSuiteButton = document.createElement("button");
 			addToSuiteButton.setAttribute('content', 'test content');
-			addToSuiteButton.setAttribute('class', 'btn btn-warning');
+			addToSuiteButton.setAttribute('class', 'btn btn-warning open-addToSuiteModal');
+			addToSuiteButton.setAttribute("data-toggle", "modal");
+			addToSuiteButton.setAttribute("data-id", arr[i].id);
+			addToSuiteButton.setAttribute("data-target", "#pick-test-suite-modal");
 			addToSuiteButton.innerHTML = "Add To Suite";
-			addToSuiteButton.onclick = addToSuiteButton;
 			addToSuiteButton.id = i;
 			testRow.insertCell(-1).appendChild(addToSuiteButton);
 		}
@@ -265,39 +320,63 @@ function drawTestTable(tableId){
 		cycle(savedTestsArray, tableId);
 	}
 
-	document.getElementById(tableId).insertBefore(table, document.getElementById('divSavedTestsBody'));
+	document.getElementById(tableId).insertBefore(table, document.getElementById(tableId + 'Body'));
 }
 
 $(document).on("click", ".open-testCaseModal", function () {
      let testCaseId= $(this).data('id');
-     $(".modal-body #testCaseId").val(testCaseId);
+	 $(".modal-body #testCaseId").val(testCaseId);
 });
 
 
+// Creating (POST) a new test case or Editing (PUT) a save case
 $("#test-case-form").submit(function (e) {
-	let path = window.location.origin + '/api/test_case/';
-    let authHeader = 'Bearer ' + userInfo.access_token;
 	e.preventDefault(); // Prevents the page from refreshing
 	$("#close-test-modal").click();
-	let indata = $('input[name!=testCaseId]', this).serialize();
+	let authHeader = '';
+	let path = window.location.origin + '/api/test_case/';
 	let testCaseId = $('input[name=testCaseId]', this).val();
+	let indata = '';
+	
+	if (testCaseId != '') {
+		type = 'PUT';
+		indata = $('input[name!=testCaseId]', this).serialize();
+	} else {
+		type = 'POST';
+		indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize() + '&' + $('input[name!=testCaseId]', this).serialize();
+	}
+	
+	if (userInfo != null) {
+		authHeader = 'Bearer ' + userInfo.access_token;
+	}	
+
 	path = path + testCaseId;
 
-    $.ajax({
-        url: path,
-        type: 'PUT',
-        headers: {
-            'Authorization': authHeader
-        },
-		data: indata,
-        success: function (result) {
-       		savedTestsArray.push(result);
-	   		showAlert('Test saved with success.', 'success');
-        },
-        error: function (error) {
-        	showAlert('Error saving test.', 'danger');
-        }
-    });
+   	$.ajax({
+	   	url: path,
+	   	type: type,
+	   	headers: {
+		   	'Authorization': authHeader
+	   	},
+	   	data: indata,
+	   	success: function (result) {
+			if (type == 'POST') {
+				testsArray.push(result);
+				showAlert('Test created with success', 'success');
+			} else {
+				if (removeFromTestsArray(result.id)) {
+					savedTestsArray.push(result);
+				} else {
+					replaceSavedTest(result.id, result);
+				} 
+				showAlert('Test case edited with success.', 'success');
+			}
+			updateAllTables();
+	  	},
+	   	error: function (error) {
+		   	showAlert('Error saving test.', 'danger');
+	   }
+   	});
 
 });
 
@@ -320,14 +399,78 @@ function showAlert(message, type) {
 	document.getElementById('neocompilertopbar').appendChild(alertDiv);
 }
 
-//TODO
-function reRunTest() {
-	console.log(this.data);
-}
-//TODO
-function addToTestSuite() {
 
-}
+$(document).on("click", ".open-addToSuiteModal", function() {
+	let testCaseId= $(this).data('id');
+	$("#pick-test-suite-form #testCaseId").val(testCaseId);
+});
+
+
+// Adds a test to a test suite
+document.getElementById("add-to-suite-button").addEventListener("click", (e) => {
+
+	e.preventDefault(); // Prevents the page from refreshing
+	$("#close-add-to-test-suite-modal").click();
+
+	var indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize();
+	let testSuiteID = $("#select-test-suite-id").val();
+	let testCaseId = $("#pick-test-suite-form #testCaseId").val();
+	console.log(testCaseId);
+	let createTestPath = window.location.origin + '/api/test_case/';
+
+
+	if (testCaseId != '') {
+		let addTestToSuitePath = window.location.origin + '/api/test_case/' + testCaseId + '/test_suite/' + testSuiteID;
+		$.ajax({
+			url: addTestToSuitePath,
+			type: 'PUT',
+			success: function (result) {
+				if (!removeFromTestsArray(result.id)) {
+					removeFromSavedTestsArray(result.id);
+				}
+				
+				addToTestSuitesArray(testSuiteID, result);
+				updateAllTables();
+
+				showAlert('Test added to suite successfully', 'success');
+			},
+			error: function (error) {
+				showAlert('Error adding test to suite', 'danger');
+			}
+		});
+	} else {
+		$.ajax({
+			url: createTestPath,
+			type: 'POST',
+			data: indata,
+			success: function (result) {
+				let addTestToSuitePath = window.location.origin + '/api/test_case/' + result.id + '/test_suite/' + testSuiteID;
+				$.ajax({
+					url: addTestToSuitePath,
+					type: 'PUT',
+					success: function (result) {
+						for (let i = 0 ; i < testSuitesArray.length; i++) {
+							if (testSuitesArray[i].id == result.testSuiteID) {
+								testSuitesArray[i].testCases.push(result);
+								break;
+							}
+						}
+						updateAllTables();
+						showAlert('Test added to suite successfully', 'success');
+					},
+					error: function (error) {
+						showAlert('Error adding test to suite', 'danger');
+					}
+				});
+			},
+			error: function (error) {
+				showAlert('Error adding test to suite', 'danger');
+			}
+		});
+	}
+	
+});
+
 
 function searchForTests() {
 	for (i = 0; i < testsArray.length; i++) {
@@ -338,6 +481,11 @@ function searchForTests() {
 
 
 function searchForSavedTests() {
+	if (userInfo == null) {
+		showAlert("You must be logged in in order to see your saved tests", "danger");
+		return;
+	}
+	getUserTests();
 	drawTestTable('divSavedTests');
 }
 
