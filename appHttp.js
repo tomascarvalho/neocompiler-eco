@@ -133,11 +133,6 @@ app.delete('/api/test_case/:testID',
 );
 
 app.put('/api/test_case/:testID',
-    function (req, res, next) {
-        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
-        next();
-    },
-    passport.authenticate('bearer'),
     testController.update
 );
 
@@ -194,6 +189,7 @@ app.post('/api/user', function(req, res, next) {
 
 app.get('/api/user/checkSessionToken',
     function (req, res, next) {
+        console.log(req.headers.authorization);
         if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
         else { next(); }
     },
