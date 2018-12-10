@@ -1,4 +1,5 @@
 const TestCase = require('../models').TestCase;
+const TestSuite = require('../models').TestSuite;
 
 module.exports = {
     create(req, res) {
@@ -16,6 +17,8 @@ module.exports = {
             wallet_invokejs: req.body.wallet_invokejs,
             invokehashjs: req.body.invokehashjs,
             invokeparamsjs: req.body.invokeparamsjs,
+            name: req.body.name,
+            description: req.body.description,
         })
         .then(test_case => res.status(201).send(test_case))
         .catch(error => res.status(400).send(error));
@@ -71,17 +74,21 @@ module.exports = {
                     message: 'TestCase Not Found',
                 });
             }
-            if (test_case.userId != null && test_case.userId != req.user.id) {
+            if (test_case.userId != null && test_case.userId != req.user.id && !req.isAuthenticated()) {
                 return res.status(403).send({
                     message: 'Forbidden!',
                 });
+            }
+            let userId = null;
+            if (req.user) {
+                userId = req.user.id;
             }
             return test_case
             .update({
                 name: req.body.name || test_case.name,
                 description: req.body.description || test_case.description,
                 contract_hash: req.body.contract_hash || test_case.contract_hash,
-                userId: req.user.id || test_case.userId,
+                userId: userId || test_case.userId,
                 transaction_hash: req.body.transaction_hash || test_case.transaction_hash,
                 event_type: req.body.event_type || test_case.event_type,
                 expected_payload_type: req.body.expected_payload_type || test_case.expected_payload_type,
@@ -108,19 +115,39 @@ module.exports = {
                     message: 'TestCase Not Found',
                 });
             }
-            // if (test_case.testSuiteId != null) {
-            //     return res.status(403).send({
-            //         message: 'Forbidden!',
-            //     });
-            // }
-            return test_case
-            .update({
-                testSuiteId: req.params.testSuiteID || test_case.testSuiteId,
+            if (test_case.userId != null && test_case.userId != req.user.id && !req.isAuthenticated()) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
+            }
+            return TestSuite
+            .findByPk(req.params.testSuiteID)
+            .then(test_suite => {
+                if (test_suite && test_suite.userId != null && test_suite.userId != req.user.id && !req.isAuthenticated()) {
+                    return res.status(403).send({
+                        message: 'Forbidden!',
+                    });
+                }
+                if (req.params.testSuiteID == 0) {
+                    req.params.testSuiteID = null;
+                }
+
+                if (req.user) {
+                    req.params.userID = req.user.id;
+                }
+
+                return test_case
+                .update({
+                    testSuiteId: req.params.testSuiteID,
+                    userId: req.params.userID,
+                })
+                .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
+                .catch((error) => res.status(400).send(error));
+
             })
-            .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
-            .catch((error) => res.status(400).send(error));
+           
         })
-        .catch((error) => res.status(400).send(error));
+        .catch((error) => { console.log(error); res.status(400).send(error); });
     },
 
 };
