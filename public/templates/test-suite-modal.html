@@ -6,10 +6,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Create Test Suite</h4>
+        <h4 class="modal-title" id="testSuiteModalTitle">Create Test Suite</h4>
       </div>
       <div class="modal-body">
           <form class="cd-form" id="test-suite-form">
+              <input type="hidden" name="testSuiteId" id="testSuiteId" value=""/>
               <p class="fieldset">
                   <label class="image-replace cd-email" for="test-suite-name">Name</label>
                   <input class="full-width has-padding has-border" id="test-suite-name" type="text" name="name" placeholder="Test Suite Name" required>
