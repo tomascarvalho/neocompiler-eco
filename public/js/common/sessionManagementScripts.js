@@ -62,9 +62,10 @@ function getUserTests() {
             'Authorization': authHeader
         },
         success: function (result) {
-           result.forEach((testCase) => {
-               savedTestsArray.push(testCase);
-           });
+            savedTestsArray = [];
+            result.forEach((testCase) => {
+                savedTestsArray.push(testCase);
+            });
         },
         error: function (error) {
             console.log("Failed");
@@ -82,9 +83,10 @@ function getUserTestSuites() {
             'Authorization': authHeader
         },
         success: function (result) {
-           result.forEach((testSuite) => {
-               savedTestSuitesArray.push(testSuite);
-           });
+            savedTestSuitesArray = [];
+            result.forEach((testSuite) => {
+                savedTestSuitesArray.push(testSuite);
+            });
         },
         error: function (error) {
             console.log("Failed");
@@ -113,6 +115,17 @@ function logout() {
             showAlert('Error logging out', 'danger');
         }
     });
+}
+
+function updateAllTables() {
+    if (userInfo != null) {
+        getUserTests();
+        getUserTestSuites();
+        drawTestSuiteTable('divSavedTestSuites');
+        drawTestTable('divSavedTests');
+    }
+    drawTestSuiteTable('divCurrentTestSuites');
+    drawTestTable('divCurrentTests');
 }
 
 window.onload = init;
