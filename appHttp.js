@@ -1,11 +1,11 @@
 require('dotenv').config();
-var express  = require('express');
-var http = require('http');
-var logger = require('morgan');             // log requests to the console (express4)
-var app = express();
-var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
-var session = require('express-session');
-var passport = require('passport'), LocalStrategy = require('passport-local').Strategy,
+const express  = require('express');
+const http = require('http');
+const logger = require('morgan');             // log requests to the console (express4)
+const app = express();
+const bodyParser = require('body-parser');    // pull information from HTML POST (express4)
+const session = require('express-session');
+const passport = require('passport'), LocalStrategy = require('passport-local').Strategy,
     BearerStrategy = require('passport-http-bearer');
 
 app.use(express.static(__dirname + '/'));                 // set the static files location /public/img will be /img for users
@@ -31,7 +31,7 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 app.set('jwtTokenSecret', process.env.JWT_TOKEN_SECRET || 'SETSECRETINPRODUCTION');
 
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 const testController = require('./controllers').test_cases;
 const userController = require('./controllers').user;
@@ -40,25 +40,20 @@ const testSuiteController = require('./controllers').test_suite;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-
-
-var User = require('./models').User;
-
-var jwt = require('jwt-simple');
+const jwt = require('jwt-simple');
 
 // This is used for auth. http://www.passportjs.org/docs/
 passport.use(new LocalStrategy(
     function(email, password, done) {
-        User.findOne({ where: { email: email }}).then(function (user, err) {
-            if (err) { return done(err); }
+        userController.getUserByEmail(email).then(function (user) {
             if (!user) {
                 return done(null, false, { message: 'Invalid email or password.' });
             }
             bcrypt.compare(password, user.password, function(err, res) {
                 if(res) {
-                    var expires = new Date();
+                    let expires = new Date();
                     expires.setDate((new Date()).getDate() + 5);
-                    var token = jwt.encode({
+                    let token = jwt.encode({
                         id: user.id,
                         expires: expires
                     }, app.get('jwtTokenSecret')); // get this from env
@@ -77,9 +72,8 @@ passport.use(new LocalStrategy(
 
 passport.use(new BearerStrategy(
     function(token, done) {
-        User.findOne({ where: {token: token }}).then(function (user, err) {
-          var decodedToken = jwt.decode(token, app.get('jwtTokenSecret'));
-          if (err) { return done(err); }
+        userController.getUserByToken(token).then(function (user) {
+          let decodedToken = jwt.decode(token, app.get('jwtTokenSecret'));
           if (!user) {
               return done(null, false);
           }
@@ -241,7 +235,7 @@ app.post('/api/logout/',
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
