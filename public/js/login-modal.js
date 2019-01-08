@@ -99,6 +99,11 @@ document.getElementById("signup-password-confirm").addEventListener('input', () 
 	}
 });
 
+
+document.getElementById("signup-email").addEventListener('input', () => {
+	$("#signup-email").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
+});
+
 document.getElementById("signinform").addEventListener('submit', (e) => {
 	$("#signinbtn").toggleClass('has-error', false).next('span').toggleClass('is-visible', false);
 	e.preventDefault();
@@ -132,17 +137,16 @@ document.getElementById("signupform").addEventListener('submit', (e) => {
 		path, // The URL to sent the post to
 		indata,
 		function (data) {
-			console.log(data);
 			$("#signin-email").val(data.username);
 			$("#signin-link").click();
 			alert("User created with success. Please log in");
 		},
 		"json" // The format the response should be in
-	).fail(function() {
-		$("#signinbtn").toggleClass('has-error', true).next('span').toggleClass('is-visible', true);
+	).fail(function(jqXHR, textStatus, errorThrown) {
+		if (JSON.parse(jqXHR.responseText)["status"]  != "Passwords don't match")
+			$("#signup-email").toggleClass('has-error', true).next('span').toggleClass('is-visible', true);
 	}); //End of POST for signin
 });
-
 
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
