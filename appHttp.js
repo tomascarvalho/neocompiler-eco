@@ -110,7 +110,12 @@ server.listen(8000 || process.env.PORT, (err) => {
 // ============================================================
 // ================== Test Cases ==============================
 
-app.post('/api/test_case', testController.create);
+app.post('/api/test_case',
+    function (req, res, next) {
+        console.log(req.body);
+        next();
+    },
+    testController.create);
 
 app.get('/api/test_cases/',
     function (req, res, next) {
@@ -178,7 +183,13 @@ app.delete('/api/test_suite/:testSuiteID',
 // ============================================================
 // ================== Users ===================================
 
-app.post('/api/user', function(req, res, next) {
+app.post('/api/user', 
+    function(req, res, next) {
+        if (req.body.password != req.body.confirmPassword) {
+            res.status(400).send({status: "Passwords don't match"});
+            return;
+        }
+
         bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
             req.body.password = hash;
             next()
@@ -190,8 +201,8 @@ app.post('/api/user', function(req, res, next) {
 app.get('/api/user/checkSessionToken',
     function (req, res, next) {
         console.log(req.headers.authorization);
-        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
-        else { next(); }
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"}); return;}
+        next();
     },
     passport.authenticate('bearer'),
     function (req, res){
@@ -206,14 +217,14 @@ app.post('/api/login',
         // If this function gets called, authentication was successful.
         // `req.user` contains the authenticated user.
         req.login(req.user, (err) => {
-            if (err) { res.status(500).send("Internal Server Error"); }
+            if (err) { res.status(500).send("Internal Server Error"); return;}
         });
         res.status(200).send({ access_token: req.user.token});
 });
 
 app.post('/api/logout/',
     function (req, res, next) {
-        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"});}
+        if (!req.isAuthenticated()) {res.status(401).send({status: "Unauthorized"}); return;}
         next();
     },
     passport.authenticate('bearer'),
@@ -222,7 +233,7 @@ app.post('/api/logout/',
         user.token = null;
         user.save().then(() => {
             req.session.destroy(function(err) {
-                if (err) { res.status(500).send("Internal Server Error") ;}
+                if (err) { res.status(500).send("Internal Server Error") ; return;}
                 res.status(200).send("OK");
             })
         });
