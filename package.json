@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "stop": "node stop-app.js"
+    "stop": "node stop-app.js",
+    "test": "mocha"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
@@ -30,5 +31,10 @@
     "serve-favicon": "~2.4.5",
     "serve-static": "^1.13.2",
     "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
+    "mocha": "^5.2.0"
   }
 }
