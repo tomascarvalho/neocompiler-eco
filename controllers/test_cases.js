@@ -6,19 +6,20 @@ module.exports = {
         return TestCase
         .create({
             contract_hash: req.body.contract_hash,
-            transaction_hash: req.body.transaction_hash,
+            transaction_hash: req.body.transaction_hash || 'N/A',
             event_type: req.body.event_type,
             expected_payload_type: req.body.expected_payload_type,
             expected_payload_value: req.body.expected_payload_value,
-            active: req.body.active,
+            active: req.body.active || null,
             attachgasfeejs: req.body.attachgasfeejs,
             attachneojs: req.body.attachneojs,
             attachgasjs: req.body.attachgasjs,
             wallet_invokejs: req.body.wallet_invokejs,
             invokehashjs: req.body.invokehashjs,
             invokeparamsjs: req.body.invokeparamsjs,
-            name: req.body.name,
-            description: req.body.description,
+            name: req.body.name || null,
+            description: req.body.description || null,
+            success: false,
         })
         .then(test_case => res.status(201).send(test_case))
         .catch(error => res.status(400).send(error));
@@ -100,6 +101,7 @@ module.exports = {
                 wallet_invokejs: req.body.wallet_invokejs || test_case.wallet_invokejs,
                 invokehashjs: req.body.invokehashjs || test_case.invokehashjs,
                 invokeparamsjs: req.body.invokeparamsjs || test_case.invokeparamsjs,
+                success: req.body.success || test_case.success
             })
             .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
             .catch((error) => res.status(400).send(error));
