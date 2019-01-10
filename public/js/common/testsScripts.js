@@ -71,6 +71,69 @@ $("#formTests").submit(function (e) {
 
 });
 
+$("#importtestbtn").click(function() {
+	let editor = ace.edit("editorJavascript").getSession().getValue();
+	try {
+		const testImport = JSON.parse(editor);
+		if ($.isPlainObject(testImport)) {
+			parseObject(testImport);
+		} else if ($.isArray(testImport)) {
+			testImport.forEach(test => {
+				if ($.isPlainObject(test)) {
+					parseObject(test);
+				} else {
+					throw("Invalid type");
+				}
+			});
+		} else {
+			throw("Invalid type");
+		}
+	} catch(err) {
+		//Display error message
+		showAlert(err, "danger");
+	}
+});
+
+function parseObject(test) {
+	if (test.contract_hash == null || test.contract_hash.length != 40)
+		throw("Invalid contract hash");
+	if (test.event_type == null || test.event_type.indexOf('SmartContract') != 0)
+		throw("Invalid event type");
+	if (test.expected_payload_type == null)
+		throw("Invalid payload type");
+	if (test.expected_payload_value == null)
+		throw("Invalid payload value");
+	if (test.attachgasfeejs == null)
+		throw("Invalid attachgasfeejs");
+	if (test.attachgasjs == null)
+		throw("Invalid attachgasjs")
+	if (test.attachneojs == null)
+		throw ("Invalid attachneojs");
+	if (test.wallet_invokejs.indexOf("wallet_") != 0)
+		throw("Invalid wallet");
+	if (test.invokehashjs == null || test.invokehashjs.length != 40)
+		throw("Invalid invokehashjs");
+	if (test.invokeparamsjs == null)
+		throw("Invalid invokeparamsjs");
+	
+	let serializedTest = JSON.stringify(test);
+	console.log(serializedTest);
+	$("#importtestbtn").disabled = true;
+	$.ajax({
+		type: 'POST',
+		url: window.location.origin + '/api/test_case', // the URL to sent the post to
+		data: serializedTest, // Serializes form data in standard format
+		dataType: "json",
+		contentType: "application/json",
+		success: function (data) {
+			$("#importtestbtn").disabled = false;
+			showAlert("Test created with success", "success");
+			testsArray.push(data);
+			updateAllTables();
+		},
+	});
+}
+
 function reRunTest(testCase) {
 	$("#test_contract_hash").val(testCase.contract_hash);
 	$("#test_event_type").val(testCase.event_type);
@@ -85,27 +148,16 @@ function reRunTest(testCase) {
 
 function editTest(testCase, txHash) {
 	testCase.transaction_hash = txHash;
+	console.log(testCase);
+	testCase.active = true;
+	testCase.success = false;
 	let path = window.location.origin + '/api/test_case/' + testCase.id;
 	let data = $.param(testCase);
 	$.ajax({
 		url: path,
 		type: 'PUT',
-		data: data
-	});
-}
-
-function editSavedTest(testCase, txHash) {
-	testCase.transaction_hash = txHash;
-	let path = window.location.origin + '/api/test_case/' + testCase.id;
-	let authHeader = 'Bearer ' + userInfo.access_token;
-	let data = $.param(data);
-	$.ajax({
-		url: path,
-		type: 'PUT',
-		headers: {
-			'Authorization': authHeader
-		},
-		data: data
+		data: data,
+		success: updateAllTables,
 	});
 }
 
@@ -173,13 +225,13 @@ function drawTestTable(tableId){
 	let eventPayloadValueHeader = document.createElement('div');
 	let optionalHeaderOne = document.createElement('div');
 	let optionalHeaderTwo = document.createElement('div');
-	if (tableId == 'divCurrentTests') {
-		optionalHeaderOne.innerHTML = "<b> Has Runned </b>";
-		optionalHeaderTwo.innerHTML = "<b> Success </b>";
-	} else if (tableId == 'divSavedTests') {
-		optionalHeaderOne.innerHTML = "<b> Name </b>";
-		optionalHeaderTwo.innerHTML = "<b> Description </b>";
-	}
+	// if (tableId == 'divCurrentTests') {
+	optionalHeaderOne.innerHTML = "<b> Running </b>";
+	optionalHeaderTwo.innerHTML = "<b> Success </b>";
+	// } else if (tableId == 'divSavedTests') {
+	// 	optionalHeaderOne.innerHTML = "<b> Name </b>";
+	// 	optionalHeaderTwo.innerHTML = "<b> Description </b>";
+	// }
 
 	IDHeader.innerHTML = "<b> ID </b>";
 	row.insertCell(-1).appendChild(IDHeader);
@@ -258,18 +310,24 @@ function drawTestTable(tableId){
 			optionalInputTwo.setAttribute("readonly", "true");
 			
 
-			if (tableId == 'divCurrentTests') {
-				arr[i].active? optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin"): optionalInputOne.setAttribute("class", "fa fa-check");
-				arr[i].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
+			// if (tableId == 'divCurrentTests') {
+			if (arr[i].active == true) {
+				optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin")
+			} else if (arr[i].active == false || arr[i].active == null) {
+				optionalInputOne.setAttribute("class", "fa fa-times")
+			} else {
+				optionalInputOne.setAttribute("class", "fa fa-times")
 			}
+			arr[i].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
+			// }
 
-			if (tableId == 'divSavedTests') {
-				optionalInputOne.setAttribute("name", "name" + i);
-				optionalInputOne.setAttribute("value", arr[i].name);
+			// if (tableId == 'divSavedTests') {
+			// 	optionalInputOne.setAttribute("name", "name" + i);
+			// 	optionalInputOne.setAttribute("value", arr[i].name);
 
-				optionalInputTwo.setAttribute("name", "description" + i);
-				optionalInputTwo.setAttribute("value", arr[i].description);
-			}
+			// 	optionalInputTwo.setAttribute("name", "description" + i);
+			// 	optionalInputTwo.setAttribute("value", arr[i].description);
+			// }
 
 			testRow.insertCell(-1).appendChild(optionalInputOne);
 			testRow.insertCell(-1).appendChild(optionalInputTwo);
@@ -277,11 +335,11 @@ function drawTestTable(tableId){
 			let reRunTestButton = document.createElement("button");
 			reRunTestButton.setAttribute('content', 'test content');
 			reRunTestButton.setAttribute('class', 'btn btn-warning');
-			if (tableId == 'divCurrentTests') {
-				reRunTestButton.innerHTML = "Re-Run";
-			} else {
-				reRunTestButton.innerHTML = 'Run';
-			}
+			// if (tableId == 'divCurrentTests') {
+			reRunTestButton.innerHTML = "Run";
+			// } else {
+			// 	reRunTestButton.innerHTML = 'Run';
+			// }
 			reRunTestButton.data = arr[i];
 			reRunTestButton.onclick = function () { reRunTest(this.data); };
 			reRunTestButton.id = tableId + 'reTest' + i;
@@ -381,7 +439,9 @@ $("#test-case-form").submit(function (e) {
 });
 
 function showAlert(message, type) {
+	$("#alertDiv").remove();
 	let alertDiv = document.createElement('div');
+	alertDiv.id = "alertDiv";
 	alertDiv.setAttribute('class', 'alert alert-' + type + ' alert-dismissible show');
 	alertDiv.setAttribute('role', 'alert');
 	let text = document.createTextNode(message);

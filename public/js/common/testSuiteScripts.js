@@ -427,11 +427,11 @@ function drawTestSuiteTable(tableId) {
 				reRunTestButton.setAttribute('content', 'test content');
 				reRunTestButton.setAttribute('class', 'btn btn-warning');
 				reRunTestButton.data = arr[i].testCases[j];
-				if (arr[i].testCases[j].active || arr[i].testCases[j].active == null) {
-					reRunTestButton.textContent= "Re-Run";
-				} else {
+				//if (arr[i].testCases[j].active || arr[i].testCases[j].active == null) {
+				//	reRunTestButton.textContent= "Re-Run";
+				//} else {
 					reRunTestButton.textContent = 'Run';
-				}
+				//}
 				reRunTestButton.onclick = function () { reRunTest(this.data); };
 				reRunTestButton.id = i;
 				testRow.insertCell(-1).appendChild(reRunTestButton);
