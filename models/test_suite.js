@@ -18,9 +18,9 @@ module.exports = (sequelize, DataTypes) => {
             as: 'testCases',
         });
         TestSuite.belongsTo(models.User, {
-	      foreignKey: 'userId',
-	      onDelete: 'CASCADE',
-	    });
+            foreignKey: 'userId',
+            onDelete: 'CASCADE',
+        });
     };
 
     return TestSuite;
