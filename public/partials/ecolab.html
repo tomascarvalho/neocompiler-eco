@@ -1512,6 +1512,40 @@ def Main():
               </div>
           </div>
 
+
+          
+
+          <div class="panel panel-primary" id="divImportTests">
+            <div class="panel-heading">Import Tests</div>
+            <div class="panel-body">
+                <form>
+                    <div class="tab-pane cont" id="jscode">
+                    <input type="hidden" id="code_js" name="codesend_js"/>
+                    <pre id="editorJavascript">
+[
+  {
+    "name": "Test Case Name",
+    "description": "Test Case Description",
+    "contract_hash": "",
+    "event_type": "SmartContract.Runtime.Log",
+    "expected_payload_type": "String",
+    "expected_payload_value": "Contract was called",
+    "attachgasfeejs": "0",
+    "attachneojs": "0",
+    "attachgasjs": "0",
+    "wallet_invokejs": "wallet_0",
+    "invokehashjs": "",
+    "invokeparamsjs": "[{\"type\":\"String\",\"value\":\"query\"},{\"type\":\"Array\",\"value\":[{\"type\":\"String\",\"value\":\"test.com\"}]}]"
+  }
+]
+                 </pre>
+                    </div>
+                    <p><font size="1">Use CTRL+ALT+H to access the hotkeys informations</font></p>
+                    <button type="button" id="importtestbtn" style="margin-bottom: 5px;" class="btn btn-success btn-sm">Import Test(s)</button>
+                </form>
+              </div>
+            </div>
+
           <div class="panel panel-success" id="divSavedTests">
               <div class="panel-heading">Saved Tests</div>
               <div class="panel-body" id="divSavedTestsBody">
@@ -1568,6 +1602,7 @@ def Main():
       var editorGolang = createEditor("editorGolang", "ace/mode/golang");
       var editorCSharp = createEditor("editorCSharp", "ace/mode/csharp");
       var editorJava = createEditor("editorJava", "ace/mode/java");
+      var editorJavascript = createEditor("editorJavascript", "ace/mode/javascript");
       var cSharpFiles = [
           //["https://raw.githubusercontent.com/NeoResearch/examples-csharp/master/HelloWorld/HelloWorld.cs"],
           ["/examples/csharp/HelloWorld/HelloWorld.cs"],
