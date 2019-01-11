@@ -47,6 +47,10 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const jwt = require('jwt-simple');
+const {
+    check,
+    validationResult
+} = require('express-validator/check');
 
 // This is used for auth. http://www.passportjs.org/docs/
 passport.use(new LocalStrategy(
@@ -209,21 +213,26 @@ app.delete('/api/test_suite/:testSuiteID',
 // ============================================================
 // ================== Users ===================================
 
-app.post('/api/user',
+app.post('/api/user', [
+        check('email').isEmail(),
+        check('password')
+            .isLength({min: 6 })
+            .custom((value,{req, loc, path}) => {
+                if (value !== req.body.confirmPassword) {
+                    // trow error if passwords do not match
+                    throw new Error("Passwords don't match");
+                } else {
+                    return value;
+                }
+            })
+    ],
     function (req, res, next) {
-        if (req.body.password != req.body.confirmPassword) {
-            res.status(400).send({
-                status: "Passwords don't match"
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.array()
             });
-            return;
         }
-        if (req.body.password.length < 6) {
-            res.status(400).send({
-                status: "Password must have more than 6 chars"
-            });
-            return;
-        }
-
         bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
             req.body.password = hash;
             next()
