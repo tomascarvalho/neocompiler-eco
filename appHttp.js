@@ -20,7 +20,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(logger('dev')); // log every request to the console
+if (process.env.NODE_ENV != 'test') {
+    app.use(logger('dev')); // log every request to the console
+}
+
 app.use(bodyParser.urlencoded({ // parse application/x-www-form-urlencoded
     parameterLimit: 100000, // bigger parameter sizes
     limit: '5mb', // bigger parameter sizes
