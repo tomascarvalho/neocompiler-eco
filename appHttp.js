@@ -87,7 +87,12 @@ passport.use(new LocalStrategy(
 passport.use(new BearerStrategy(
     function (token, done) {
         userController.getUserByToken(token).then(function (user) {
-            let decodedToken = jwt.decode(token, app.get('jwtTokenSecret'));
+            let decodedToken;
+            try {
+                decodedToken = jwt.decode(token, app.get('jwtTokenSecret'));
+            } catch (error) {
+                return done(null, false);
+            }
             if (!user) {
                 return done(null, false);
             }
@@ -121,8 +126,19 @@ server.listen(8000 || process.env.PORT, (err) => {
 // ================== Test Cases ==============================
 
 app.post('/api/test_case',
+    [
+        check('contract_hash')
+            .isLength({min: 40, max: 40})
+            .isHexadecimal(),
+        check('event_type').contains('SmartContract')
+    ],
     function (req, res, next) {
-        console.log(req.body);
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.array()
+            });
+        }
         next();
     },
     testController.create);
