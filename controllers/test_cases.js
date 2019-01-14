@@ -75,6 +75,11 @@ module.exports = {
                     message: 'TestCase Not Found',
                 });
             }
+            if (test_case.userId != null && !req.user) {
+                return res.status(403).send({
+                    message: 'Forbidden!',
+                });
+            }
             if (test_case.userId != null && test_case.userId != req.user.id && !req.isAuthenticated()) {
                 return res.status(403).send({
                     message: 'Forbidden!',
