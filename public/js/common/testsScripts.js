@@ -117,7 +117,6 @@ function parseObject(test) {
 		throw("Invalid invokeparamsjs");
 	
 	let serializedTest = JSON.stringify(test);
-	console.log(serializedTest);
 	$("#importtestbtn").disabled = true;
 	$.ajax({
 		type: 'POST',
@@ -148,7 +147,6 @@ function reRunTest(testCase) {
 
 function editTest(testCase, txHash) {
 	testCase.transaction_hash = txHash;
-	console.log(testCase);
 	testCase.active = true;
 	testCase.success = false;
 	let path = window.location.origin + '/api/test_case/' + testCase.id;
@@ -357,6 +355,10 @@ function drawTestTable(tableId){
 				saveTestButton.setAttribute('data-toggle', 'modal');
 				saveTestButton.setAttribute('data-target', '#test-case-modal')
 				saveTestButton.setAttribute('data-id', arr[i].id);
+				saveTestButton.setAttribute("data-name", arr[i].name);
+				saveTestButton.setAttribute("data-description", arr[i].description);
+				saveTestButton.setAttribute("data-contract_hash", arr[i].contract_hash);
+				saveTestButton.setAttribute("data-payload_value", arr[i].expected_payload_value);
 				testRow.insertCell(-1).appendChild(saveTestButton);
 			}
 
@@ -382,8 +384,18 @@ function drawTestTable(tableId){
 }
 
 $(document).on("click", ".open-testCaseModal", function () {
-     let testCaseId= $(this).data('id');
+	 let testCaseId= $(this).data('id');
+	 let testCaseHash = $(this).data('contract_hash');
+	 let testCasePayloadValue = $(this).data('payload_value');
+	 let testCaseName = $(this).data('name');
+	 let testCaseDescription = $(this).data('description');
+	 
 	 $(".modal-body #testCaseId").val(testCaseId);
+	 $(".modal-body #test-case-hash").val(testCaseHash);
+	 $(".modal-body #test-case-name").val(testCaseName);
+	 $(".modal-body #test-case-description").val(testCaseDescription);
+	 $(".modal-body #test-case-event-payload-value").val(testCasePayloadValue);
+
 });
 
 
@@ -398,7 +410,7 @@ $("#test-case-form").submit(function (e) {
 	
 	if (testCaseId != '') {
 		type = 'PUT';
-		indata = $('input[name!=testCaseId]', this).serialize();
+		indata = $(this).serialize();
 	} else {
 		type = 'POST';
 		indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize() + '&' + $('input[name!=testCaseId]', this).serialize();
@@ -422,13 +434,12 @@ $("#test-case-form").submit(function (e) {
 				testsArray.push(result);
 				showAlert('Test created with success', 'success');
 			} else {
+				showAlert('Test case edited with success.', 'success');
 				if (removeFromTestsArray(result.id)) {
 					savedTestsArray.push(result);
 				} else {
 					replaceSavedTest(result.id, result);
-				} 
-				showAlert('Test case edited with success.', 'success');
-			}
+				} 			}
 			updateAllTables();
 	  	},
 	   	error: function (error) {
