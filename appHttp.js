@@ -172,6 +172,22 @@ app.delete('/api/test_case/:testID',
 );
 
 app.put('/api/test_case/:testID',
+    // if request has these fields, ensure that:
+    // [
+    //     check('contract_hash')
+    //         .isLength({min: 40, max: 40})
+    //         .isHexadecimal(),
+    //     check('event_type').contains('SmartContract')
+    // ],
+    // function (req, res, next) {
+    //     const errors = validationResult(req);
+    //     if (!errors.isEmpty()) {
+    //         return res.status(422).json({
+    //             errors: errors.array()
+    //         });
+    //     }
+    //     next();
+    // },
     testController.update
 );
 
