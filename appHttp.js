@@ -146,7 +146,7 @@ app.post('/api/test_case',
 app.get('/api/test_cases/',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
         }
@@ -161,7 +161,7 @@ app.get('/api/test_case/:testID', testController.retrieve);
 app.delete('/api/test_case/:testID',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
         }
@@ -206,7 +206,7 @@ app.get('/api/test_suite/:testSuiteID', testSuiteController.retrieve);
 app.get('/api/test_suites/',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
         }
@@ -219,7 +219,7 @@ app.get('/api/test_suites/',
 app.put('/api/test_suite/:testSuiteID',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
         }
@@ -232,7 +232,7 @@ app.put('/api/test_suite/:testSuiteID',
 app.delete('/api/test_suite/:testSuiteID',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
         }
@@ -276,16 +276,15 @@ app.post('/api/user', [
 app.get('/api/user/checkSessionToken',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
-            return;
         }
         next();
     },
     passport.authenticate('bearer'),
     function (req, res) {
-        res.status(200).send({
+        return res.status(200).send({
             status: "Ok"
         });
     }
@@ -299,8 +298,7 @@ app.post('/api/login',
         // `req.user` contains the authenticated user.
         req.login(req.user, (err) => {
             if (err) {
-                res.status(500).send("Internal Server Error");
-                return;
+                return res.status(500).send("Internal Server Error");
             }
         });
         res.status(200).send({
@@ -311,10 +309,9 @@ app.post('/api/login',
 app.post('/api/logout/',
     function (req, res, next) {
         if (!req.isAuthenticated()) {
-            res.status(401).send({
+            return res.status(401).send({
                 status: "Unauthorized"
             });
-            return;
         }
         next();
     },
@@ -325,8 +322,7 @@ app.post('/api/logout/',
         user.save().then(() => {
             req.session.destroy(function (err) {
                 if (err) {
-                    res.status(500).send("Internal Server Error");
-                    return;
+                    return res.status(500).send("Internal Server Error");
                 }
                 res.status(200).send("OK");
             })
