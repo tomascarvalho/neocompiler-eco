@@ -30,7 +30,7 @@ describe('Test Cases', () => {
         TestCase.sync({
             force: true
         }) // drops table and re-creates it
-        .then(function () {
+        .then(function () { // creates a new user for the tests
             chai.request(app)
                 .post('/api/user')
                 .send(user)
@@ -40,7 +40,7 @@ describe('Test Cases', () => {
         }, function (err) {
             done(err);
         })
-        .then(function() {
+        .then(function() { // logs in the user to the agent
             agent
                 .post('/api/login')
                 .send(user)
@@ -351,10 +351,34 @@ describe('Test Cases', () => {
                     done();
                 });
         });
+
+        it('should not be able to edit an unexistent test case', (done) => {
+            const edited_test_case = {
+                name: "I dont care about names!",
+                description: "Test Case Description",
+                contract_hash: "3943e22ece58327eca17c790aa510e9cb211bb3d",
+                event_type: "SmartContract.Runtime.Notify",
+                expected_payload_type: "String",
+                expected_payload_value: "Contract was called",
+                attachgasfeejs: "0",
+                attachneojs: "0",
+                attachgasjs: "0",
+                wallet_invokejs: "wallet_0",
+                invokehashjs: "3943e22ece58327eca17c790aa510e9cb211bb3d",
+                invokeparamsjs: "[{\"type\":\"String\",\"value\":\"query\"},{\"type\":\"Array\",\"value\":[{\"type\":\"String\",\"value\":\"test.com\"}]}]"
+            }
+            chai.request(app)
+                .put('/api/test_case/125')
+                .send(edited_test_case)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
     });
 
     describe('/GET test case', () => {
-        it('non authenticated user should be able to get the created (unowned) test case', (done) => {
+        it('should be able to get an existing test case', (done) => {
             chai.request(app)
                 .get('/api/test_case/1')
                 .end((err, res) => {
@@ -364,7 +388,7 @@ describe('Test Cases', () => {
                 });
         });
 
-        it('user should not be able to get a non-existing test case', (done) => {
+        it('should not be able to get a non-existing test case', (done) => {
             chai.request(app)
                 .get('/api/test_case/115215')
                 .end((err, res) => {
@@ -378,5 +402,46 @@ describe('Test Cases', () => {
         });
     });
 
-    
+    describe('/GET test cases', () => {
+        it('should be able to list all owned test cases', (done) => {
+            agent
+                .get('/api/test_cases')
+                .set('Authorization', 'Bearer ' + bearerToken)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    done();
+                });
+        });
+
+        it('should not be able to list unowned test cases', (done) => {
+            chai.request(app)
+                .get('/api/test_cases')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
+
+    describe('/DELETE test cases', () => {
+        it('should not be able to delete an unowned test case', (done) => {
+            chai.request(app)
+                .delete('/api/test_case/1')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+
+        it('should be able to delete an owned test case', (done) => {
+            agent
+            .delete('/api/test_case/1')
+            .set('Authorization', 'Bearer ' + bearerToken)
+            .end((err, res) => {
+                res.should.have.status(200);
+                done();
+            });
+        });
+    });
 });
