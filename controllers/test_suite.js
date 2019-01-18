@@ -8,7 +8,7 @@ module.exports = {
             name: req.body.name,
             description: req.body.description
         })
-        .then(test_suite => res.status(200).send(test_suite))
+        .then(test_suite => res.status(201).send(test_suite))
         .catch(error => res.status(400).send(error));
     },
     list(req, res) {
