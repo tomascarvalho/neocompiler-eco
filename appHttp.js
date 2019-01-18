@@ -199,7 +199,21 @@ app.put('/api/test_case/:testID/test_suite/:testSuiteID',
 // ================== Test Suites =============================
 //
 
-app.post('/api/test_suite/', testSuiteController.create);
+app.post('/api/test_suite/', 
+    [
+        check('name').isLength({min: 3 }),
+        check('description').isLength({min: 3 })
+    ],
+    function (req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.array()
+            });
+        }
+        next();
+    },
+    testSuiteController.create);
 
 app.get('/api/test_suite/:testSuiteID', testSuiteController.retrieve);
 
