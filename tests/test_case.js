@@ -18,40 +18,51 @@ let bearerToken = '';
 let expiredBearerToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwaXJlcyI6IjIwMTgtMDEtMTZUMTM6MzM6NTQuMjQ5WiJ9.NKoGPFJ2nN5p7WWYefXB_veVf1fMGxPvtsV-erZ-iPU';
 
 const user = {
-    email: "testuser@mail.com",
+    email: "user321@mail.com",
     password: "uns4f3P4ss0rd",
-    confirmPassword: "uns4f3P4ss0rd"
+    confirmPassword: "uns4f3P4ss0rd",
+    username: "user321@gmail.com"
 }
 
 
 describe('Test Cases', () => {
-    // Clean existing user data
+    // Clean existing test case data
     before(function (done) {
         TestCase.sync({
             force: true
         }) // drops table and re-creates it
-        .then(function () { // creates a new user for the tests
-            chai.request(app)
-                .post('/api/user')
-                .send(user)
-                .end((err, res) => {
-                    done();
-                });
+        .then(function () { // cleans users
+            User.sync({
+                force: true
+            }) // drops table and re-creates it
+            .then(function () {
+                done(null);
+            }, function (err) {
+                done(err);
+            });
         }, function (err) {
             done(err);
         })
-        .then(function() { // logs in the user to the agent
-            agent
-                .post('/api/login')
-                .send(user)
-                .end((err, res) => {
-                    bearerToken = res.body.access_token;
-                });
-        });
     },
     after(function (done) {
+        // close agent
         agent.close();
-        done(null);
+        // Clean existing test case data
+        TestCase.sync({
+            force: true
+        }) // drops table and re-creates it
+        .then(function () { // cleans users
+            User.sync({
+                force: true
+            }) // drops table and re-creates it
+            .then(function () {
+                done(null);
+            }, function (err) {
+                done(err);
+            });
+        }, function (err) {
+            done(err);
+        })
     }));
 
     describe('/POST test case', () => {
@@ -76,9 +87,36 @@ describe('Test Cases', () => {
                 .end((err, res) => {
                     res.should.have.status(201);
                     res.body.should.be.a('object');
+                    res.body.should.have.property('id').eql(1);
                     done();
                 });
         });
+
+        it('should be able to create another valid test case', (done) => {
+            const test_case = {
+                name: "Second test case",
+                description: "My Test Case Description",
+                contract_hash: "5243e22ece12327eca17c790aa510e9cb211bb3d",
+                event_type: "SmartContract.Runtime.Log",
+                expected_payload_type: "String",
+                expected_payload_value: "Contract was called",
+                attachgasfeejs: "0",
+                attachneojs: "0",
+                attachgasjs: "0",
+                wallet_invokejs: "wallet_0",
+                invokehashjs: "3943e22ece58327eca17c790aa510e9cb211bb3d",
+                invokeparamsjs: "[{\"type\":\"String\",\"value\":\"query\"},{\"type\":\"Array\",\"value\":[{\"type\":\"String\",\"value\":\"test.com\"}]}]"
+            }
+            chai.request(app)
+                .post('/api/test_case')
+                .send(test_case)
+                .end((err, res) => {
+                    res.should.have.status(201);
+                    res.body.should.be.a('object');
+                    done();
+                });
+        });
+
 
         it('should not be able to create a test case with invalid contract hash', (done) => {
             const test_case = {
@@ -271,9 +309,23 @@ describe('Test Cases', () => {
         //         });
         // });
 
+     
+        it('it should create a valid user', (done) => {
+            chai.request(app)
+                .post('/api/user')
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(201);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('username');
+                    res.body.should.have.property('username').eql(user.email);
+                    done();
+                });
+        });
+
         it('it should login an existent user', (done) => {
             const user = {
-                username: "testuser@mail.com",
+                username: "user321@mail.com",
                 password: "uns4f3P4ss0rd",
             }
             agent
@@ -289,13 +341,25 @@ describe('Test Cases', () => {
                 });
         });
 
-        it ('should be able to own a test if authenticated', (done) => {
+        it ('should be able to own an unowned test if authenticated', (done) => {
             agent
                 .put('/api/test_case/1')
                 .set('Authorization', 'Bearer ' + bearerToken)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
+                    done();
+                });
+        });
+
+        it ('should not be able to own an unowned test if not authenticated', (done) => {
+            chai.request(app)
+                .put('/api/test_case/2')
+                .set('Authorization', 'Bearer ' + bearerToken)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('userId').eql(null);
                     done();
                 });
         });

@@ -30,7 +30,14 @@ describe('Users', () => {
     },
     after(function (done) {
         agent.close();
-        done(null);
+        User.sync({
+            force: true
+        }) // drops table and re-creates it
+        .then(function () {
+            done(null);
+        }, function (err) {
+            done(err);
+        });
     }));
 
     /*
@@ -39,7 +46,7 @@ describe('Users', () => {
     describe('/POST user', () => {
         it('it should create a valid user', (done) => {
             const user = {
-                email: "testuser@mail.com",
+                email: "user123@mail.com",
                 password: "uns4f3P4ss0rd",
                 confirmPassword: "uns4f3P4ss0rd"
             }
@@ -57,7 +64,7 @@ describe('Users', () => {
 
         it('it should not allow different passwords', (done) => {
             const user = {
-                email: "testuser@mail.com",
+                email: "otheruser@mail.com",
                 password: "uns4f3P4ss0rd",
                 confirmPassword: "unsafepassword"
             }
@@ -78,7 +85,7 @@ describe('Users', () => {
 
         it('it should not allow dupplicate users', (done) => {
             const user = {
-                email: "testuser@mail.com",
+                email: "user123@mail.com",
                 password: "anotherpassword",
                 confirmPassword: "anotherpassword"
             }
@@ -122,7 +129,7 @@ describe('Users', () => {
     describe('/POST login', () => {
         it('it should login an existent user', (done) => {
             const user = {
-                username: "testuser@mail.com",
+                username: "user123@mail.com",
                 password: "uns4f3P4ss0rd",
             }
             agent
@@ -140,7 +147,7 @@ describe('Users', () => {
 
         it('it should not login user with incorrect password', (done) => {
             const user = {
-                username: "testuser@mail.com",
+                username: "user123@mail.com",
                 password: "somepassword",
             }
             chai.request(app)
