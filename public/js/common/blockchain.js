@@ -152,7 +152,7 @@ function getContractState(contractScriptHash, deployOrInvoke){
                 function (resultJsonData) {
                    console.log(resultJsonData);
                    if(resultJsonData.result)
-                   {			
+                   {
 			if(deployOrInvoke)
 			   	createNotificationOrAlert("DEPLOYING A CONTRACT THAT ALREADY EXISTS", "code_version: " + resultJsonData.result.code_version +  " name:" + resultJsonData.result.name, 3000);
 		   }else{
@@ -456,125 +456,145 @@ function pushParams(neonJSParams, type, value){
 
 //Example of invoke
 //Invoke(KNOWN_ADDRESSES[0].addressBase58,KNOWN_ADDRESSES[0].pKeyWif,3,1,1, "24f232ce7c5ff91b9b9384e32f4fd5038742952f", "operation", BASE_PATH_CLI, getCurrentNetworkNickname(), [])
-function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash, contract_operation, nodeToCall, networkToCall, neonJSParams){
-  console.log("Invoke '" + contract_scripthash + "' function '" + contract_operation + "' with params '" + neonJSParams+"'");
 
-  var i = 0;
-  for(i = 0; i<neonJSParams.length; i++)
-     console.log(JSON.stringify(neonJSParams[i]));
-
-  console.log("mygasfee '" +mygasfee+ "' neo '" + neo + "' gas '" + gas+"'");
-
-  //Notify user if contract exists
-  getContractState(contract_scripthash, false);
-  if(contract_scripthash == "" || !Neon.default.is.scriptHash(contract_scripthash))
-  {
-	alert("Contract scripthash " + contract_scripthash + " is not being recognized as a scripthash.");
-	return;
-  }
-
-  var intent;
-  if(neo > 0 && gas > 0)
-  	intent = Neon.api.makeIntent({NEO:neo,GAS:gas}, toBase58(contract_scripthash))
-
-  if(neo == 0 && gas > 0)
-  	intent = Neon.api.makeIntent({GAS:gas}, toBase58(contract_scripthash))
-
-  if(neo > 0 && gas == 0)
-  	intent = Neon.api.makeIntent({NEO:neo}, toBase58(contract_scripthash))
-
-   //console.log(intent);
-
-/*
-   export const createScript = (...scriptIntents) => {
-  if (scriptIntents.length === 1 && Array.isArray(scriptIntents[0])) {
-    scriptIntents = scriptIntents[0]
-  }
-  const sb = new ScriptBuilder()
-  for (var scriptIntent of scriptIntents) {
-    if (!scriptIntent.scriptHash) throw new Error('No scriptHash found!')
-    const { scriptHash, operation, args, useTailCall } = Object.assign({ operation: null, args: undefined, useTailCall: false }, scriptIntent)
-
-    sb.emitAppCall(scriptHash, operation, args, useTailCall)
-  }
-  return sb.str
-}
-
-emitAppCall (scriptHash, operation = null, args = undefined, useTailCall = false) {
-  this.emitPush(args)
-  if (operation) {
-    let hexOp = ''
-    for (let i = 0; i < operation.length; i++) {
-      hexOp += num2hexstring(operation.charCodeAt(i))
-    }
-    this.emitPush(hexOp)
-  }
-  this._emitAppCall(scriptHash, useTailCall)
-  return this
-}
-*/
-
-  var sb = Neon.default.create.scriptBuilder();//new ScriptBuilder();
-  var i=0;
-  // PUSH parameters BACKWARDS!!
-  for(i=neonJSParams.length-1; i>=0; i--) {
-     console.log('emit push:'+JSON.stringify(neonJSParams[i]));
-     console.log(neonJSParams[i]);
-     if (Array.isArray(neonJSParams[i])) {
-         console.log("is array!");
-         //sb._emitArray(neonJSParams[i]);
-     }
-     //else
-     //      sb.emitPush(neonJSParams[i]);
-     sb._emitParam(neonJSParams[i]);
-  }
-  sb._emitAppCall(contract_scripthash, false); // tailCall = false
-  var myscript = sb.str;
-
-  // TODO: consider "in array" option to create an array of parameters...
-  // Json should be something like: [{"type":"String","value":"op"},[{"type":"String","value":"ccxxcx"},{"type":"String","value":"sddsdd"}]]
-  // Or: [{"type":"String","value":"op"},{"type":"Array", "value": [{"type":"String","value":"ccxxcx"},{"type":"String","value":"sddsdd"}]}]
-
-
-  const config = {
-    net: networkToCall,
-    url: nodeToCall,
-    //script: Neon.default.create.script({
-   //   scriptHash: contract_scripthash,
-   //   operation: contract_operation,
-   //   args: neonJSParams
-   // }),
-    script : myscript, // new manual script respecting each parameter
-    intents: intent,
-    address: myaddress, //'AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y',//'ARCvt1d5qAGzcHqJCWA2MxvhTLQDb9dvjQ',
-    privateKey: myprivatekey, //'1dd37fba80fec4e6a6f13fd708d8dcb3b29def768017052f6c930fa1c5d90bbb',//'4f0d41eda93941d106d4a26cc90b4b4fddc0e03b396ac94eb439c5d9e0cd6548',
-    gas: mygasfee //0
-  }
-
-  Neon.default.doInvoke(config).then(res => {
-    console.log(res);
-    //console.log(res.response);
-    //console.log(res.tx);
-    //console.log(res.tx.hash);
-
-    if(typeof(res.response.result) == "boolean") // 2.X
-         createNotificationOrAlert("Invoke","Response: " + res.response.result + " of " + contract_scripthash, 7000);
-    else // 3.X
-         createNotificationOrAlert("Invoke","Response: " + res.response.result.succeed + " Reason:" + res.response.result.reason + " of " + contract_scripthash + " id " + res.tx.hash, 7000);
-
-    if(res.response.result) {
-      if(typeof(res.response.result) == "boolean") // 2.X
-          updateVecRelayedTXsAndDraw(res.response.txid,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
-      else  // 3.X
-    	  updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
-    }
-
-  }).catch(err => {
-     console.log(err);
-     createNotificationOrAlert("Invoke ERROR","Response: " + err, 7000);
+function myAsyncFunction(url) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.onload = () => resolve(xhr.responseText);
+    xhr.onerror = () => reject(xhr.statusText);
+    xhr.send();
   });
+}
 
-  document.getElementById('divNetworkRelayed').scrollIntoView();
+
+function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash, contract_operation, nodeToCall, networkToCall, neonJSParams, callback, testCase){
+    return new Promise((resolve, reject) => {
+        console.log("Invoke '" + contract_scripthash + "' function '" + contract_operation + "' with params '" + neonJSParams+"'");
+
+        var i = 0;
+        for(i = 0; i<neonJSParams.length; i++)
+            console.log(JSON.stringify(neonJSParams[i]));
+
+        console.log("mygasfee '" +mygasfee+ "' neo '" + neo + "' gas '" + gas+"'");
+
+        //Notify user if contract exists
+        getContractState(contract_scripthash, false);
+        if(contract_scripthash == "" || !Neon.default.is.scriptHash(contract_scripthash)) {
+            alert("Contract scripthash " + contract_scripthash + " is not being recognized as a scripthash.");
+            return;
+        }
+
+        var intent;
+        if(neo > 0 && gas > 0)
+        	intent = Neon.api.makeIntent({NEO:neo,GAS:gas}, toBase58(contract_scripthash))
+
+        if(neo == 0 && gas > 0)
+        	intent = Neon.api.makeIntent({GAS:gas}, toBase58(contract_scripthash))
+
+        if(neo > 0 && gas == 0)
+        	intent = Neon.api.makeIntent({NEO:neo}, toBase58(contract_scripthash))
+
+        //console.log(intent);
+
+        /*
+        export const createScript = (...scriptIntents) => {
+        if (scriptIntents.length === 1 && Array.isArray(scriptIntents[0])) {
+        scriptIntents = scriptIntents[0]
+        }
+        const sb = new ScriptBuilder()
+        for (var scriptIntent of scriptIntents) {
+        if (!scriptIntent.scriptHash) throw new Error('No scriptHash found!')
+        const { scriptHash, operation, args, useTailCall } = Object.assign({ operation: null, args: undefined, useTailCall: false }, scriptIntent)
+
+        sb.emitAppCall(scriptHash, operation, args, useTailCall)
+        }
+        return sb.str
+        }
+
+        emitAppCall (scriptHash, operation = null, args = undefined, useTailCall = false) {
+        this.emitPush(args)
+        if (operation) {
+        let hexOp = ''
+        for (let i = 0; i < operation.length; i++) {
+          hexOp += num2hexstring(operation.charCodeAt(i))
+        }
+        this.emitPush(hexOp)
+        }
+        this._emitAppCall(scriptHash, useTailCall)
+        return this
+        }
+        */
+
+        var sb = Neon.default.create.scriptBuilder();//new ScriptBuilder();
+        var i=0;
+        // PUSH parameters BACKWARDS!!
+        for(i=neonJSParams.length-1; i>=0; i--) {
+             console.log('emit push:'+JSON.stringify(neonJSParams[i]));
+             console.log(neonJSParams[i]);
+             if (Array.isArray(neonJSParams[i])) {
+                 console.log("is array!");
+                 //sb._emitArray(neonJSParams[i]);
+             }
+             //else
+             //      sb.emitPush(neonJSParams[i]);
+             sb._emitParam(neonJSParams[i]);
+        }
+        sb._emitAppCall(contract_scripthash, false); // tailCall = false
+        var myscript = sb.str;
+
+        // TODO: consider "in array" option to create an array of parameters...
+        // Json should be something like: [{"type":"String","value":"op"},[{"type":"String","value":"ccxxcx"},{"type":"String","value":"sddsdd"}]]
+        // Or: [{"type":"String","value":"op"},{"type":"Array", "value": [{"type":"String","value":"ccxxcx"},{"type":"String","value":"sddsdd"}]}]
+
+
+        const config = {
+        net: networkToCall,
+        url: nodeToCall,
+        //script: Neon.default.create.script({
+        //   scriptHash: contract_scripthash,
+        //   operation: contract_operation,
+        //   args: neonJSParams
+        // }),
+        script : myscript, // new manual script respecting each parameter
+        intents: intent,
+        address: myaddress, //'AK2nJJpJr6o664CWJKi1QRXjqeic2zRp8y',//'ARCvt1d5qAGzcHqJCWA2MxvhTLQDb9dvjQ',
+        privateKey: myprivatekey, //'1dd37fba80fec4e6a6f13fd708d8dcb3b29def768017052f6c930fa1c5d90bbb',//'4f0d41eda93941d106d4a26cc90b4b4fddc0e03b396ac94eb439c5d9e0cd6548',
+        gas: mygasfee //0
+        }
+
+        Neon.default.doInvoke(config).then(res => {
+            console.log(res);
+            //console.log(res.tx.hash);
+
+            if(typeof(res.response.result) == "boolean") // 2.X
+                 createNotificationOrAlert("Invoke","Response: " + res.response.result + " of " + contract_scripthash, 7000);
+            else // 3.X
+                 createNotificationOrAlert("Invoke","Response: " + res.response.result.succeed + " Reason:" + res.response.result.reason + " of " + contract_scripthash + " id " + res.tx.hash, 7000);
+
+            if(res.response.result) {
+              if(typeof(res.response.result) == "boolean") { // 2.X
+                  updateVecRelayedTXsAndDraw(res.response.txid,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
+                  $("#transactionHash").val(res.response.txid);
+                  callback(testCase, res.response.txid, res.tx.gas);
+              }
+              else { // 3.X
+            	  updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
+                  $("#transactionHash").val(res.response.hash);
+                  callback(testCase, res.response.txid, res.tx.gas);
+              }
+            }
+
+            
+
+        }).catch(err => {
+         console.log(err);
+         createNotificationOrAlert("Invoke ERROR","Response: " + err, 7000);
+        });
+
+        document.getElementById('divNetworkRelayed').scrollIntoView();
+
+    });
 }
 
 

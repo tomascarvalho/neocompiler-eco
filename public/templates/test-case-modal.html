@@ -1,0 +1,82 @@
+<!-- Modal -->
+<div id="test-case-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Save Test Case</h4>
+      </div>
+      <div class="modal-body">
+        <form class="cd-form" id="test-case-form">
+          <input type="hidden" name="testCaseId" id="testCaseId" value="" />
+          <p class="fieldset">
+            <label class="image-replace cd-email" for="test-case-name">Name</label>
+            <input class="full-width has-padding has-border" id="test-case-name" type="text" name="name" placeholder="Test Case Name"
+              required>
+          </p>
+
+          <p class="fieldset">
+            <label class="image-replace cd-email" for="test-case-description">Description</label>
+            <input class="full-width has-padding has-border" id="test-case-description" type="text" name="description"
+              placeholder="Test Case Description" required>
+          </p>
+
+          <p class="fieldset">
+            <label class="image-replace cd-email" for="test-case-hash">Contract Hash</label>
+            <input class="full-width has-padding has-border" type="text" name="contract_hash" onchange="" id="test-case-hash"
+              placeholder="Contract Hash" value="" required>
+          </p>
+          <p class="fieldset">
+            <select name="event_type" id="test_event_type" required>
+              <option value="SmartContract.Runtime.Notify">Runtime Notify</option>
+              <option value="SmartContract.Runtime.Log">Runtime Log</option>
+              <option value="SmartContract.Execution.Invoke">Execution Invoke</option>
+              <option value="SmartContract.Execution.Success">Execution Success</option>
+              <option value="SmartContract.Execution.Fail">Execution Fail</option>
+              <option value="SmartContract.Verification.Success">Verification Success</option>
+              <option value="SmartContract.Verification.Fail">Verification Fail</option>
+              <option value="SmartContract.Storage.Get">Storage Get</option>
+              <option value="SmartContract.Storage.Put">Storage Put</option>
+              <option value="SmartContract.Storage.Delete">Storage Delete</option>
+              <option value="SmartContract.Contract.Create">Contract Create</option>
+              <option value="SmartContract.Contract.Migrate">Contract Migrate</option>
+              <option value="SmartContract.Contract.Destroy">Contract Destroy</option>
+            </select>
+          </p>
+          <p class="fieldset">
+            <label class="image-replace cd-email" for="test-case-event-payload">Event Type</label>
+            <select class="full-width has-padding has-border" name="expected_payload_type" id="test-case-event-payload"
+              required>
+              <option value="Signature">Signature</option>
+              <option value="Boolean">Boolean</option>
+              <option value="Integer">Integer</option>
+              <option value="Hash160">Hash160</option>
+              <option value="Hash256">Hash256</option>
+              <option value="ByteArray">ByteArray</option>
+              <option value="PublicKey">PublicKey</option>
+              <option value="String">String</option>
+              <option value="Array">Array</option>
+              <option value="InteropInterface">InteropInterface</option>
+              <option value="Void">Void</option>
+            </select>
+          </p>
+          <p class="fieldset">
+            <label class="image-replace cd-email" for="test-case-event-payload-value">Event Type</label>
+            <input class="full-width has-padding has-border" type="text" name="expected_payload_value" onchange="" id="test-case-event-payload-value"
+              placeholder="Payload Value" value="" required>
+          </p>
+
+          <p class="fieldset">
+            <input class="full-width has-padding" type="submit" id="save-test-case-button" value="Save">
+          </p>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="close-test-modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>

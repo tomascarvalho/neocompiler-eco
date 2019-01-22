@@ -409,6 +409,7 @@ function updateAddressSelectionBox(){
       drawWalletsStatus();
       //Adding all known address to NeonInvokeSelectionBox
       addAllKnownAddressesToSelectionBox("wallet_invokejs");
+      addAllKnownAddressesToSelectionBox("wallet_invokejsTest");
       addAllKnownAddressesToSelectionBox("wallet_deployjs");
       addAllKnownAddressesToSelectionBox("wallet_info");
       //addAllKnownAddressesToSelectionBox("createtx_to");

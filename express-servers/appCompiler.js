@@ -76,13 +76,6 @@ app.get('/getCompilers', (req, res) => {
   });
 });
 
-
-
-app.get('/', (req, res) => {
-  console.log("Welcome to our NeoCompiler Eco Compilers RPC API");
-  res.status(200).send("Welcome to our NeoCompiler Eco Compilers RPC API");
-});
-
 app.post('/compilex', function(req, res) {
   // Specifies which URL to listen for
   // req.body -- contains form data
@@ -129,7 +122,7 @@ app.post('/compilex', function(req, res) {
 		  var msgret = "{\"output\":\""+msg64+"\",\"avm\":\"\",\"abi\":\"\"}";
 		  res.send(msgret);
 	  }
-	  else{	
+	  else{
 		      var cmddocker = "docker run -e COMPILECODE=" + code64 + " -t --rm " + imagename;
 		      var child = require('child_process').exec(cmddocker, optionsCompile, (e, stdout, stderr)=> {
 
@@ -151,7 +144,7 @@ app.post('/compilex', function(req, res) {
     else {
 	    var msg64 = new Buffer("Unknown Compiler!",'ascii').toString('base64');
 	    var msgret = "{\"output\":\""+msg64+"\",\"avm\":\"\",\"abi\":\"\"}";
-	    res.send(msgret); 
+	    res.send(msgret);
     }
 }); // End of compilex
 

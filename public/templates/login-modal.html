@@ -1,0 +1,62 @@
+<div class="cd-user-modal"> <!-- this is the entire modal form, including the background -->
+    <div class="cd-user-modal-container"> <!-- this is the container wrapper -->
+        <ul class="cd-switcher">
+            <li><a href="#0" id="signin-link">Sign in</a></li>
+            <li><a href="#0">New account</a></li>
+        </ul>
+
+        <div id="cd-login"> <!-- log in form -->
+            <form class="cd-form" id="signinform">
+                <p class="fieldset">
+                    <label class="image-replace cd-email" for="signin-email">E-mail</label>
+                    <input class="full-width has-padding has-border" id="signin-email" type="email" name="username" ng-model="username" autocomplete="email" placeholder="E-mail" required>
+                </p>
+
+                <p class="fieldset">
+                    <label class="image-replace cd-password" for="signin-password">Password</label>
+                    <input class="full-width has-padding has-border" id="signin-password" type="password" name="password" autocomplete="current-password" ng-model="password" placeholder="Password" required>
+                    <span class="cd-error-message">Invalid email or password!</span>
+                </p>
+
+                <p class="fieldset">
+                    <input class="full-width has-padding" type="submit" id="signinbtn" ng-click="login()" value="Login">
+                </p>
+            </form>
+
+        </div> <!-- cd-login -->
+
+        <div id="cd-signup"> <!-- sign up form -->
+            <form class="cd-form" id="signupform">
+                <p class="fieldset">
+                    <label class="image-replace cd-email" for="signup-email">E-mail</label>
+                    <input class="full-width has-padding has-border" id="signup-email" type="email" name="email" autocomplete="username email" placeholder="E-mail" required>
+                    <span class="cd-error-message">Email already in use!</span>
+                </p>
+
+                <p class="fieldset">
+                    <label class="image-replace cd-password" for="signup-password">Password</label>
+                    <input class="full-width has-padding has-border" id="signup-password" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Password">
+                </p>
+
+                <p class="fieldset">
+                    <label class="image-replace cd-password" for="signup-password">Confirm Password</label>
+                    <input class="full-width has-padding has-border" id="signup-password-confirm" type="password" name="confirmPassword" autocomplete="new-password" minlength="6" placeholder="Confirm Password" required>
+                    <span class="cd-error-message">Passwords must match!</span>
+                </p>
+
+                <p class="fieldset">
+                    <input class="full-width has-padding" type="submit" id="signupbtn" value="Create account">
+                    <span id="signup-message" class="cd-form-bottom-message"></span>
+                </p>
+            </form>
+
+            <!-- <a href="#0" class="cd-close-form">Close</a> -->
+        </div> <!-- cd-signup -->
+
+        <a href="#0" class="cd-close-form">Close</a>
+    </div> <!-- cd-user-modal-container -->
+</div> <!-- cd-user-modal -->
+
+
+<!-- User login modal -->
+<script src="public/js/login-modal.js"></script>

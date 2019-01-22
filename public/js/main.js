@@ -27,9 +27,9 @@ KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'KxyjQ
 //Node2
 KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'KzfPUYDC9n2yf4fK5ro4C8KMcdeXtFuEnStycbZgX3GomiUsvX6W', privKey: '', pubKey: '', print: false, verificationScript: ''});
 //Node3
-KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'L2oEXKRAAMiPEZukwR5ho2S6SMeQLhcK9mF71ZnF7GvT8dU4Kkgz', privKey: '', pubKey: '', print: false, verificationScript: ''}); 
+KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'L2oEXKRAAMiPEZukwR5ho2S6SMeQLhcK9mF71ZnF7GvT8dU4Kkgz', privKey: '', pubKey: '', print: false, verificationScript: ''});
 //Node4
-KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'KzgWE3u3EDp13XPXXuTKZxeJ3Gi8Bsm8f9ijY3ZsCKKRvZUo1Cdn', privKey: '', pubKey: '', print: false, verificationScript: ''}); 
+KNOWN_ADDRESSES.push({ type: 'commonAddress', addressBase58: '', pKeyWif: 'KzgWE3u3EDp13XPXXuTKZxeJ3Gi8Bsm8f9ijY3ZsCKKRvZUo1Cdn', privKey: '', pubKey: '', print: false, verificationScript: ''});
 // ==============================================================================================
 
 var ADDRESSES_TO_CLAIM = new Array(0);
@@ -42,7 +42,7 @@ var BASE_PATH_COMPILERS = getFirstAvailableService("ecocompilers",ecoNodes);
 var BASE_PATH_CLI = getFirstAvailableService("RPC",ecoNodes);
 // ECO SERVICES RPC PATH - [SOCKETIO - CSHARPNODESLOGS - PYTHON-NOTIFICATIONS]
 var BASE_PATH_ECOSERVICES = getFirstAvailableService("ecoservices",ecoNodes);
-// NEOSCAN PATH PATH 
+// NEOSCAN PATH PATH
 var BASE_PATH_NEOSCAN = getFirstAvailableService("neoscan",ecoNodes);
 // PYTHON REST NOTIFICATIONS
 var BASE_PATH_PY_REST = getFirstAvailableService("RESTNotifications",ecoNodes);
@@ -133,5 +133,3 @@ function getFirstAvailableService(serviceType,networkServicesObj){
               return serviceUrlToAdd;
           }
 }
-        
-
