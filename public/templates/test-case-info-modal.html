@@ -1,0 +1,35 @@
+<!-- Modal -->
+<div id="info-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="testSuiteModalTitle">Info</h4>
+            </div>
+            <div class="modal-body">
+                <div id="testModalDiv">
+                    <p id="has-runned">Test has run: False</p>
+                    <p id="success">Test has passed</p>
+                    <p id="gas-cost">Gas cost: 0</p>
+                    <p id="expected-event-payload">Expected event payload: 'expected event'</p>
+                    <p id="sc-event">Event listened: </p>
+                    <ul>
+                        <li id="sc-event-type"></li>
+                        <li id="sc-event-contract-hash"></li>
+                        <li id="sc-event-transaction-hash"></li>
+                        <li id="sc-event-payload-type"></li>
+                        <li id="sc-event-payload-value"></li>
+                        <li id="sc-event-block-number"></li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="close-test-suite-modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

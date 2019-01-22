@@ -145,8 +145,11 @@ function reRunTest(testCase) {
 }
 
 
-function editTest(testCase, txHash) {
+function editTest(testCase, txHash, gasCost) {
+	console.log("GAS COST: ");
+	console.log(gasCost);
 	testCase.transaction_hash = txHash;
+	testCase.gas_cost = gasCost;
 	testCase.active = true;
 	testCase.success = false;
 	let path = window.location.origin + '/api/test_case/' + testCase.id;
@@ -270,7 +273,7 @@ function drawTestTable(tableId){
 			let inputContractHash = document.createElement("input");
 			inputContractHash.setAttribute("name", "testContractHash" + i);
 			inputContractHash.setAttribute("readonly","true");
-			inputContractHash.style.width = '200px';
+			inputContractHash.style.width = '150px';
 			inputContractHash.setAttribute("value", arr[i].contract_hash);
 			testRow.insertCell(-1).appendChild(inputContractHash);
 
@@ -278,7 +281,7 @@ function drawTestTable(tableId){
 				let inputTransactionHash = document.createElement("input");
 				inputTransactionHash.setAttribute("name", "testTransactionHash" + i);
 				inputTransactionHash.setAttribute("readonly","true");
-				inputTransactionHash.style.width = '200px';
+				inputTransactionHash.style.width = '175px';
 				inputTransactionHash.setAttribute("value", arr[i].transaction_hash);
 				testRow.insertCell(-1).appendChild(inputTransactionHash);
 			}
@@ -371,6 +374,17 @@ function drawTestTable(tableId){
 			addToSuiteButton.innerHTML = "Add To Suite";
 			addToSuiteButton.id = i;
 			testRow.insertCell(-1).appendChild(addToSuiteButton);
+
+			let infoButton = document.createElement("button");
+			infoButton.setAttribute('content', 'test content');
+			infoButton.setAttribute('class', 'btn btn-warning open-testInfoModal');
+			infoButton.setAttribute("data-toggle", "modal");
+			infoButton.setAttribute("data-test", JSON.stringify(arr[i]));
+
+			infoButton.setAttribute("data-target", "#info-modal");
+			infoButton.innerHTML = "Info";
+			infoButton.id = "infoButton" + i;
+			testRow.insertCell(-1).appendChild(infoButton);
 		}
 	};
 
@@ -389,7 +403,7 @@ $(document).on("click", ".open-testCaseModal", function () {
 	 let testCasePayloadValue = $(this).data('payload_value');
 	 let testCaseName = $(this).data('name');
 	 let testCaseDescription = $(this).data('description');
-	 
+
 	 $(".modal-body #testCaseId").val(testCaseId);
 	 $(".modal-body #test-case-hash").val(testCaseHash);
 	 $(".modal-body #test-case-name").val(testCaseName);
@@ -474,6 +488,37 @@ function showAlert(message, type) {
 $(document).on("click", ".open-addToSuiteModal", function() {
 	let testCaseId= $(this).data('id');
 	$("#pick-test-suite-form #testCaseId").val(testCaseId);
+});
+
+$(document).on("click", ".open-testInfoModal", function() {
+	let testCase= $(this).data('test');
+	let sc_event = testCase.sc_event;
+	try {
+		sc_event = JSON.parse(sc_event);
+	} catch(err) {
+		console.log(err);
+	}
+	testCase.active == null? $("#testModalDiv #has-runned").text("Test has not run yet") : $("#testModalDiv #has-runned").text("Test is active: " + testCase.active);
+	$("#testModalDiv #success").text("Test success: " + testCase.success);
+	testCase.gas_cost == null? $("#testModalDiv #gas-cost").text("Gas cost: N/A") : $("#testModalDiv #gas-cost").text("Gas cost: " + testCase.gas_cost);
+	$("#testModalDiv #expected-event-payload").text("Expected event payload: " + testCase.expected_payload_value);
+
+	if (sc_event == null) {
+		$("#testModalDiv #sc-event").text("Listened event: N/A");
+	} else {
+		$("#testModalDiv #sc-event").text("Listened event: ");
+		$("#testModalDiv #sc-event-type").text("Event type: " + sc_event.event_type);
+		$("#testModalDiv #sc-event-contract-hash").text("Contract hash: " + sc_event.contract_hash);
+		$("#testModalDiv #sc-event-transaction-hash").text("Transaction hash: " + sc_event.tx_hash);
+		$("#testModalDiv #sc-event-block-number").text("Block number: " + sc_event.block_number);
+		$("#testModalDiv #sc-event-payload-type").text("Payload Type: " + sc_event.event_payload.type);
+		$("#testModalDiv #sc-event-payload-value").text("Payload value: " + sc_event.event_payload.value);
+
+	}
+	// sc_event == null? $("#testModalDiv #sc-event").text("Listened event: N/A") : $("#testModalDiv #sc-event").text("Listened event: " + sc_event);
+	// console.log(testCase.expected_payload_type);
+	// console.log(testCase.expected_payload_value);
+
 });
 
 
