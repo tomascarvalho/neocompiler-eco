@@ -63,8 +63,11 @@ module.exports = (sequelize, DataTypes) => {
 		invokeparamsjs: {
 			type: DataTypes.STRING,
 			allowNull: true
+		},
+		gas_cost: {
+			type: DataTypes.INTEGER,
+			allowNull: true
 		}
-
 	}, {
 		tableName: 'test_cases'
 	});

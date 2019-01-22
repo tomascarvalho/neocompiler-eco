@@ -565,8 +565,6 @@ function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash
 
         Neon.default.doInvoke(config).then(res => {
             console.log(res);
-            //console.log(res.response);
-            //console.log(res.tx);
             //console.log(res.tx.hash);
 
             if(typeof(res.response.result) == "boolean") // 2.X
@@ -578,12 +576,12 @@ function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash
               if(typeof(res.response.result) == "boolean") { // 2.X
                   updateVecRelayedTXsAndDraw(res.response.txid,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
                   $("#transactionHash").val(res.response.txid);
-                  callback(testCase, res.response.txid);
+                  callback(testCase, res.response.txid, res.tx.gas);
               }
               else { // 3.X
             	  updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
                   $("#transactionHash").val(res.response.hash);
-                  callback(testCase, res.response.txid);
+                  callback(testCase, res.response.txid, res.tx.gas);
               }
             }
 

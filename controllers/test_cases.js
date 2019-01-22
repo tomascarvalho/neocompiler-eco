@@ -106,7 +106,8 @@ module.exports = {
                 wallet_invokejs: req.body.wallet_invokejs || test_case.wallet_invokejs,
                 invokehashjs: req.body.invokehashjs || test_case.invokehashjs,
                 invokeparamsjs: req.body.invokeparamsjs || test_case.invokeparamsjs,
-                success: req.body.success || test_case.success
+                success: req.body.success || test_case.success,
+                gas_cost: req.body.gas_cost || test_case.gas_cost
             })
             .then(() => res.status(200).send(test_case))  // Send back the updated test_case.
             .catch((error) => res.status(400).send(error));
