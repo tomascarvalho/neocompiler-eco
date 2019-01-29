@@ -575,12 +575,10 @@ function Invoke(myaddress, myprivatekey, mygasfee, neo, gas, contract_scripthash
             if(res.response.result) {
               if(typeof(res.response.result) == "boolean") { // 2.X
                   updateVecRelayedTXsAndDraw(res.response.txid,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
-                  $("#transactionHash").val(res.response.txid);
                   callback(testCase, res.response.txid, res.tx.gas);
               }
               else { // 3.X
-            	  updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
-                  $("#transactionHash").val(res.response.hash);
+            	    updateVecRelayedTXsAndDraw(res.tx.hash,"Invoke",contract_scripthash,JSON.stringify(neonJSParams));
                   callback(testCase, res.response.txid, res.tx.gas);
               }
             }
