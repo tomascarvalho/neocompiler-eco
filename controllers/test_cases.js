@@ -20,6 +20,7 @@ module.exports = {
             name: req.body.name || null,
             description: req.body.description || null,
             success: false,
+            gas_cost: req.body.gas_cost || null
         })
         .then(test_case => res.status(201).send(test_case))
         .catch(error => res.status(400).send(error));
