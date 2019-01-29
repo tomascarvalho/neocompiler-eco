@@ -66,6 +66,7 @@ function getUserTests() {
             result.forEach((testCase) => {
                 savedTestsArray.push(testCase);
             });
+            drawTestTable('divSavedTests');
         },
         error: function (error) {
             console.log("Failed");
@@ -124,6 +125,8 @@ function updateAllTables() {
         drawTestSuiteTable('divSavedTestSuites');
         drawTestTable('divSavedTests');
     }
+    searchForTests();
+    searchForTestSuites();
     drawTestSuiteTable('divCurrentTestSuites');
     drawTestTable('divCurrentTests');
 }

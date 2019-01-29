@@ -14,6 +14,7 @@ function addToTestSuitesArray(testSuiteId, testCase) {
 function removeFromTestSuitesArray(id) {
 	for (let i = 0; i <testSuitesArray.length; i++) {
 		if (testSuitesArray[i].id == id) {
+			testSuitesArray.splice(i, 1);
 			return true;
 		}
 	}
@@ -23,6 +24,7 @@ function removeFromTestSuitesArray(id) {
 function removeFromSavedTestSuitesArray(id) {
 	for (let i = 0; i <savedTestSuitesArray.length; i++) {
 		if (savedTestSuitesArray[i].id == id) {
+			savedTestSuitesArray.splice(i, 1);
 			return true;
 		}
 	}
@@ -136,7 +138,7 @@ function deleteSavedTestSuite(arrayPos){
 		            'Authorization': authHeader
 		        },
 				success: function (result) {
-					savedTestSuitesArray.splice(arrayPos, 1);
+					removeFromSavedTestSuitesArray(savedTestSuitesArray[arrayPos].id);
 					drawTestTable('divSavedTestSuites');
 					showAlert('Test suite deleted successfully', 'success');
 				},
@@ -365,7 +367,7 @@ function drawTestSuiteTable(tableId) {
 				let inputContractHash = document.createElement("input");
 				inputContractHash.setAttribute("name", "testContractHash" + j);
 				inputContractHash.setAttribute("readonly","true");
-				inputContractHash.style.width = '200px';
+				inputContractHash.style.width = '125px';
 				inputContractHash.setAttribute("value", arr[i].testCases[j].contract_hash);
 				testRow.insertCell(-1).appendChild(inputContractHash);
 
@@ -373,7 +375,7 @@ function drawTestSuiteTable(tableId) {
 					let inputTransactionHash = document.createElement("input");
 					inputTransactionHash.setAttribute("name", "testTransactionHash" + i);
 					inputTransactionHash.setAttribute("readonly","true");
-					inputTransactionHash.style.width = '200px';
+					inputTransactionHash.style.width = '125px';
 					inputTransactionHash.setAttribute("value", arr[i].testCases[j].transaction_hash);
 					testRow.insertCell(-1).appendChild(inputTransactionHash);
 				}
@@ -404,6 +406,9 @@ function drawTestSuiteTable(tableId) {
 					
 					if (arr[i].testCases[j].active) {
 						optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
+						optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+					} else if (arr[i].testCases[j].active == null) {
+						optionalInputOne.setAttribute("class", "fa fa-times");
 						optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
 					} else {
 						arr[i].testCases[j].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
@@ -461,6 +466,17 @@ function drawTestSuiteTable(tableId) {
 				addToSuiteButton.onclick = addToSuiteButton;
 				addToSuiteButton.id = j;
 				testRow.insertCell(-1).appendChild(addToSuiteButton);
+
+				let infoButton = document.createElement("button");
+				infoButton.setAttribute('content', 'test content');
+				infoButton.setAttribute('class', 'btn btn-warning open-testInfoModal');
+				infoButton.setAttribute("data-toggle", "modal");
+				infoButton.setAttribute("data-test", JSON.stringify(arr[i]));
+
+				infoButton.setAttribute("data-target", "#info-modal");
+				infoButton.innerHTML = "Info";
+				infoButton.id = "infoButton" + i;
+				testRow.insertCell(-1).appendChild(infoButton);
 			}
 			innerTable.hidden = true;;
 			testSuiteRow.onclick = () => {
@@ -498,7 +514,7 @@ $(document).on("click", ".open-testSuiteModal", function () {
 // Creating (POST) a new test suite or Editing (PUT) a saved test suite
 $("#test-suite-form").submit(function (e) {
 	e.preventDefault(); // Prevents the page from refreshing
-   	$("#close-test-modal").click();
+	$("#close-test-suite-modal").click();
    	let indata = $('input[name!=testSuiteId]', this).serialize();
 	let testSuiteId = $('input[name=testSuiteId]', this).val();
 	let path = window.location.origin + '/api/test_suite/';
@@ -512,8 +528,6 @@ $("#test-suite-form").submit(function (e) {
 	let authHeader = '';
 	if (userInfo != null)
 		authHeader = 'Bearer ' + userInfo.access_token;
-
-	$("#close-test-suite-modal").click();
 
    	$.ajax({
 	   	url: path,
@@ -533,11 +547,10 @@ $("#test-suite-form").submit(function (e) {
 				} else {
 					replaceSavedTestSuite(result.id, result);
 				} 
+				drawTestSuiteTable('divTestSuites');
 				drawTestSuiteTable('divSavedTestSuites');
 				showAlert('Test suite edited with success.', 'success');
-			}
-			
-			
+			}			
 	  	},
 	   	error: function (error) {
 		   	showAlert('Error saving test.', 'danger');

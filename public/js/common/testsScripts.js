@@ -4,7 +4,7 @@
 function removeFromTestsArray(id) {
 	for (let i = 0; i < testsArray.length; i++) {
 		if (testsArray[i].id == id) {
-			testsArray.pop(i);
+			testsArray.splice(i, 1);
 			drawTestTable('divCurrentTestsTable');
 			return true;
 		}
@@ -15,7 +15,7 @@ function removeFromTestsArray(id) {
 function removeFromSavedTestsArray(id) {
 	for (let i = 0; i < savedTestsArray.length; i++) {
 		if (savedTestsArray[i].id == id) {
-			savedTestsArray.pop(i);
+			savedTestsArray.splice(i, 1);
 			drawTestTable('divCurrentSavedTestsTable');
 			return true;
 		}
@@ -34,8 +34,19 @@ function replaceSavedTest(id, newTest) {
 	return false;
 }
 
-function cb(a, b){
-	$("#formTests").submit();
+function cb(testCase, txHash, gasCost){
+	var indata = $("#formTests").serialize() + "&" + "active=true" + "&transaction_hash=" + txHash + "&gas_cost=" + gasCost + "&" + $("#formInvokeBeforeTest").serialize();
+	$.post(
+        window.location.origin + '/api/test_case/', // Gets the URL to sent the post to
+		indata, // Serializes form data in standard format
+		function (data) {
+			$("#testbtn")[0].disabled = false;
+			$("#resulttests").val(JSON.stringify(data));
+			testsArray.push(data);
+			updateAllTables();
+		},
+		"json" // The format the response should be in
+	);
 };
 
 $("#formInvokeBeforeTest").submit(function(e) {
@@ -50,25 +61,6 @@ $("#formInvokeBeforeTest").submit(function(e) {
 	let neonJSParams = [];
 	neonJSParams = JSON.parse($("#invokeparamsjsTest")[0].value);
 	Invoke(KNOWN_ADDRESSES[wI].addressBase58,KNOWN_ADDRESSES[wI].pKeyWif,attachgasfeejs,attachneojs,attachgasjs, invokeScripthash, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, cb);
-});
-
-$("#formTests").submit(function (e) {
-	e.preventDefault(); // Prevents the page from refreshing
-
-	var indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize();
-
-	$.post(
-        window.location.origin + '/api/test_case/', // Gets the URL to sent the post to
-		indata, // Serializes form data in standard format
-		function (data) {
-			$("#testbtn")[0].disabled = false;
-			$("#resulttests").val(JSON.stringify(data));
-			testsArray.push(data);
-			updateAllTables();
-		},
-		"json" // The format the response should be in
-	);
-
 });
 
 $("#importtestbtn").click(function() {
@@ -140,7 +132,12 @@ function reRunTest(testCase) {
 	$("#test_expected_payload_value").val(testCase.expected_payload_value);
 	let wI = Number(testCase.wallet_invokejs[testCase.wallet_invokejs.length-1]);
 	let invokefunc = "";
-	let neonJSParams = JSON.parse(testCase.invokeparamsjs)
+	let neonJSParams;
+	try {
+		neonJSParams = JSON.parse(testCase.invokeparamsjs)
+	} catch(err) {
+		neonJSParams = "";
+	};
 	Invoke(KNOWN_ADDRESSES[wI].addressBase58, KNOWN_ADDRESSES[wI].pKeyWif, Number(testCase.attachgasfeejs), Number(testCase.attachneojs), Number(testCase.attachgasjs), testCase.invokehashjs, invokefunc, BASE_PATH_CLI, getCurrentNetworkNickname(), neonJSParams, editTest, testCase);
 }
 
@@ -204,8 +201,10 @@ function deleteSavedTest(arrayPos){
 function drawTestTable(tableId){
 	//Clear previous data
 	let toDeleteTable = document.getElementById(tableId + '-innerTable');
-	if (toDeleteTable)
+	while (toDeleteTable) {
 		toDeleteTable.parentNode.removeChild(toDeleteTable);
+		toDeleteTable = document.getElementById(tableId + '-innerTable');
+	}
 
 	if (tableId == 'divSavedTests' && userInfo == null) {
 		showAlert('You must be logged in order to see your saved tests', 'danger');
@@ -531,7 +530,6 @@ document.getElementById("add-to-suite-button").addEventListener("click", (e) => 
 	var indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize();
 	let testSuiteID = $("#select-test-suite-id").val();
 	let testCaseId = $("#pick-test-suite-form #testCaseId").val();
-	console.log(testCaseId);
 	let createTestPath = window.location.origin + '/api/test_case/';
 
 
@@ -545,7 +543,6 @@ document.getElementById("add-to-suite-button").addEventListener("click", (e) => 
 					removeFromSavedTestsArray(result.id);
 				}
 				
-				addToTestSuitesArray(testSuiteID, result);
 				updateAllTables();
 
 				showAlert('Test added to suite successfully', 'success');
@@ -592,7 +589,6 @@ function searchForTests() {
 	for (i = 0; i < testsArray.length; i++) {
 		searchForTest(i, testsArray[i].id);
 	}
-	drawTestTable('divCurrentTests');
 }
 
 
@@ -602,7 +598,6 @@ function searchForSavedTests() {
 		return;
 	}
 	getUserTests();
-	drawTestTable('divSavedTests');
 }
 
 function searchForTest(indexToUpdate, testID) {
@@ -614,6 +609,7 @@ function searchForTest(indexToUpdate, testID) {
 				testsArray[indexToUpdate].active = data.active;
 				testsArray[indexToUpdate].success = data.success;
 				testsArray[indexToUpdate].sc_event = JSON.parse(data.sc_event);
+				drawTestTable('divCurrentTests');
 			}
 		},
 		"json" // The format the response should be in
