@@ -178,12 +178,11 @@ function drawTestSuiteTable(tableId) {
 	let optionalHeaderOne;
 	let optionalHeaderTwo;
 	
-	if (tableId == 'divCurrentTestSuites') {
-		optionalHeaderOne = document.createElement('div');
-		optionalHeaderTwo = document.createElement('div');
-		optionalHeaderOne.innerHTML = "<b> Has Runned </b>";
-		optionalHeaderTwo.innerHTML = "<b> Success </b>";
-	}
+	optionalHeaderOne = document.createElement('div');
+	optionalHeaderTwo = document.createElement('div');
+	optionalHeaderOne.innerHTML = "<b> Has Runned </b>";
+	optionalHeaderTwo.innerHTML = "<b> Success </b>";
+	
 
 	IDHeader.innerHTML = "<b> ID </b>";
 	row.insertCell(-1).appendChild(IDHeader);
@@ -196,10 +195,10 @@ function drawTestSuiteTable(tableId) {
 	numberOfTestCasesHeader.innerHTML = "<b> Test Cases </b>";
 	row.insertCell(-1).appendChild(numberOfTestCasesHeader);
 
-	if (tableId == 'divCurrentTestSuites') {
-		row.insertCell(-1).appendChild(optionalHeaderOne);
-		row.insertCell(-1).appendChild(optionalHeaderTwo);
-	}
+	
+	row.insertCell(-1).appendChild(optionalHeaderOne);
+	row.insertCell(-1).appendChild(optionalHeaderTwo);
+	
 
 	const cycle = (arr, tableId) => {
 		for (i = 0; i < arr.length; i++) {
@@ -243,44 +242,31 @@ function drawTestSuiteTable(tableId) {
 			let optionalInputOne = document.createElement("span");
 			let optionalInputTwo = document.createElement("span");
 			
-			if (tableId == 'divCurrentTestSuites') {
-				optionalInputOne.setAttribute("name", "testSuiteHasRunned" + i);
-				optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
-				optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+	
+			optionalInputOne.setAttribute("name", "testSuiteHasRunned" + i);
+			optionalInputOne.setAttribute("class", "fa fa-times");
+			optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
 
-				for (let j = 0; j < num; j++) {
-					optionalInputOne.setAttribute("class", "fa fa-check");
-					optionalInputTwo.setAttribute("class", "fa fa-check");
+			for (let j = 0; j < num; j++) {
+				optionalInputOne.setAttribute("class", "fa fa-check");
+				optionalInputTwo.setAttribute("class", "fa fa-check");
 
-					if (arr[i].testCases[j].active) {
-						optionalInputOne.setAttribute("class", "fa fa-times");
-						break;
-					} 
-					if (!arr[i].testCases[j].success || arr[i].testCases[j].success == null) {
-						optionalInputTwo.setAttribute("class", "fa fa-times");
-						break;
-					}
+				if (arr[i].testCases[j].active) {
+					optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
+					optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+				} else if (arr[i].testCases[j].active == null) {
+					optionalInputOne.setAttribute("class", "fa fa-times");
+					optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+				} else {
+					arr[i].testCases[j].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
+					optionalInputOne.setAttribute('class', 'fa fa-check');
 				}
-				
-				testSuiteRow.insertCell(-1).appendChild(optionalInputOne);
-
-				optionalInputTwo.setAttribute("name", "inputTestSuiteWasSuccessful" + i);
-				testSuiteRow.insertCell(-1).appendChild(optionalInputTwo);
 			}
+			
+			testSuiteRow.insertCell(-1).appendChild(optionalInputOne);
 
-			if (tableId == 'divSavedTests') {
-				optionalInputOne.setAttribute("name", "name" + i);
-				optionalInputOne.setAttribute("readonly", "true");
-				optionalInputOne.setAttribute("value", arr[i].name);
-				optionalInputOne.style.width = '200px';
-				testRow.insertCell(-1).appendChild(optionalInputOne);
-
-				optionalInputTwo.setAttribute("name", "description" + i);
-				optionalInputTwo.setAttribute("readonly", "true");
-				optionalInputTwo.setAttribute("value", arr[i].description);
-				optionalInputTwo.style.width = '200px';
-				testRow.insertCell(-1).appendChild(optionalInputTwo);
-			}
+			optionalInputTwo.setAttribute("name", "inputTestSuiteWasSuccessful" + i);
+			testSuiteRow.insertCell(-1).appendChild(optionalInputTwo);
 
 			let runTestSuiteButton = document.createElement("button");
 			runTestSuiteButton.setAttribute('content', 'test content');
@@ -323,23 +309,20 @@ function drawTestSuiteTable(tableId) {
 			let eventPayloadValueHeader = document.createElement('div');
 			let optionalHeaderOne = document.createElement('div');
 			let optionalHeaderTwo = document.createElement('div');
-			if (tableId == 'divCurrentTestSuites') {
-				optionalHeaderOne.innerHTML = "<b> Has Runned </b>";
-				optionalHeaderTwo.innerHTML = "<b> Success </b>";
-			} else if (tableId == 'divSavedTestSuites') {
-				optionalHeaderOne.innerHTML = "<b> Name </b>";
-				optionalHeaderTwo.innerHTML = "<b> Description </b>";
-			}
+	
+			optionalHeaderOne.innerHTML = "<b> Has Runned </b>";
+			optionalHeaderTwo.innerHTML = "<b> Success </b>";
+		
 
 			IDHeader.innerHTML = "<b> ID </b>";
 			innerTableRow.insertCell(-1).appendChild(IDHeader);
 			contractHashHeader.innerHTML = "<b> Contract Hash </b>";
 			innerTableRow.insertCell(-1).appendChild(contractHashHeader);
-			if (tableId == 'divCurrentTestSuites') {
-				let transactionHashHeader = document.createElement('div');
-				transactionHashHeader.innerHTML = "<b> Related Transaction Hash </b>";
-				innerTableRow.insertCell(-1).appendChild(transactionHashHeader);
-			}
+		
+			let transactionHashHeader = document.createElement('div');
+			transactionHashHeader.innerHTML = "<b> Related Transaction Hash </b>";
+			innerTableRow.insertCell(-1).appendChild(transactionHashHeader);
+		
 			eventTypeHeader.innerHTML = "<b> Expected Event Type </b>";
 			innerTableRow.insertCell(-1).appendChild(eventTypeHeader);
 			eventPayloadTypeHeader.innerHTML = "<b> Expected Payload Type </b>";
@@ -371,14 +354,14 @@ function drawTestSuiteTable(tableId) {
 				inputContractHash.setAttribute("value", arr[i].testCases[j].contract_hash);
 				testRow.insertCell(-1).appendChild(inputContractHash);
 
-				if (tableId == 'divCurrentTestSuites') {
-					let inputTransactionHash = document.createElement("input");
-					inputTransactionHash.setAttribute("name", "testTransactionHash" + i);
-					inputTransactionHash.setAttribute("readonly","true");
-					inputTransactionHash.style.width = '125px';
-					inputTransactionHash.setAttribute("value", arr[i].testCases[j].transaction_hash);
-					testRow.insertCell(-1).appendChild(inputTransactionHash);
-				}
+	
+				let inputTransactionHash = document.createElement("input");
+				inputTransactionHash.setAttribute("name", "testTransactionHash" + i);
+				inputTransactionHash.setAttribute("readonly","true");
+				inputTransactionHash.style.width = '125px';
+				inputTransactionHash.setAttribute("value", arr[i].testCases[j].transaction_hash);
+				testRow.insertCell(-1).appendChild(inputTransactionHash);
+				
 
 				let inputEventType = document.createElement("input");
 				inputEventType.setAttribute("name", "testEventType"+i);
@@ -402,29 +385,18 @@ function drawTestSuiteTable(tableId) {
 				let optionalInputTwo = document.createElement("span");
 				
 
-				if (tableId == 'divCurrentTestSuites') {
 					
-					if (arr[i].testCases[j].active) {
-						optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
-						optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
-					} else if (arr[i].testCases[j].active == null) {
-						optionalInputOne.setAttribute("class", "fa fa-times");
-						optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
-					} else {
-						arr[i].testCases[j].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
-						optionalInputOne.setAttribute('class', 'fa fa-check');
-					}
-					
+				if (arr[i].testCases[j].active) {
+					optionalInputOne.setAttribute("class", "fas fa-circle-notch fa-spin");
+					optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+				} else if (arr[i].testCases[j].active == null) {
+					optionalInputOne.setAttribute("class", "fa fa-times");
+					optionalInputTwo.setAttribute("class", "fas fa-circle-notch fa-spin");
+				} else {
+					arr[i].testCases[j].success? optionalInputTwo.setAttribute("class", "fa fa-check"): optionalInputTwo.setAttribute("class", "fa fa-times");
+					optionalInputOne.setAttribute('class', 'fa fa-check');
 				}
-
-				if (tableId == 'divSavedTestSuites') {
-					optionalInputOne.setAttribute("name", "name" + i);
-					optionalInputOne.setAttribute("value", arr[i].testCases[j].name);
-
-					optionalInputTwo.setAttribute("name", "description" + i);
-					optionalInputTwo.setAttribute("value", arr[i].testCases[j].description);
-				}
-
+	
 				testRow.insertCell(-1).appendChild(optionalInputOne);
 				testRow.insertCell(-1).appendChild(optionalInputTwo);
 
@@ -471,7 +443,7 @@ function drawTestSuiteTable(tableId) {
 				infoButton.setAttribute('content', 'test content');
 				infoButton.setAttribute('class', 'btn btn-warning open-testInfoModal');
 				infoButton.setAttribute("data-toggle", "modal");
-				infoButton.setAttribute("data-test", JSON.stringify(arr[i]));
+				infoButton.setAttribute("data-test", JSON.stringify(arr[i].testCases[j]));
 
 				infoButton.setAttribute("data-target", "#info-modal");
 				infoButton.innerHTML = "Info";
@@ -559,9 +531,11 @@ $("#test-suite-form").submit(function (e) {
 
 });
 
-function runTestSuite(testSuite) {
+async function runTestSuite(testSuite) {
 	for (let i = 0; i < testSuite.testCases.length; i++) {
+		console.log("Running: " + testSuite.testCases[i].id);
 		reRunTest(testSuite.testCases[i]);
+		await sleep(2000);
 	}
 }
 
@@ -593,3 +567,9 @@ function searchForTestSuite(indexToUpdate, testSuiteID) {
         }
     });
 }
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+  
+ 

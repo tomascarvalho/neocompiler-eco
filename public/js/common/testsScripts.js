@@ -41,7 +41,7 @@ function cb(testCase, txHash, gasCost){
 		indata, // Serializes form data in standard format
 		function (data) {
 			$("#testbtn")[0].disabled = false;
-			$("#resulttests").val(JSON.stringify(data));
+			$("#resulttests").val("Test created with success");
 			testsArray.push(data);
 			updateAllTables();
 		},
@@ -497,6 +497,8 @@ $(document).on("click", ".open-testInfoModal", function() {
 	} catch(err) {
 		console.log(err);
 	}
+	testCase.name == null ? $("#testModalDiv #test-name").text("Test name: N/A") : $("#testModalDiv #test-name").text("Test name: " + testCase.name);
+	testCase.description == null ? $("#testModalDiv #test-description").text("Test description: N/A") : $("#testModalDiv #test-description").text("Test description: " + testCase.description);
 	testCase.active == null? $("#testModalDiv #has-runned").text("Test has not run yet") : $("#testModalDiv #has-runned").text("Test is active: " + testCase.active);
 	$("#testModalDiv #success").text("Test success: " + testCase.success);
 	testCase.gas_cost == null? $("#testModalDiv #gas-cost").text("Gas cost: N/A") : $("#testModalDiv #gas-cost").text("Gas cost: " + testCase.gas_cost);
@@ -504,6 +506,13 @@ $(document).on("click", ".open-testInfoModal", function() {
 
 	if (sc_event == null) {
 		$("#testModalDiv #sc-event").text("Listened event: N/A");
+		$("#testModalDiv #sc-event").text("Listened event: ");
+		$("#testModalDiv #sc-event-type").text("Event type: " + sc_event.event_type);
+		$("#testModalDiv #sc-event-contract-hash").text("Contract hash: " + sc_event.contract_hash);
+		$("#testModalDiv #sc-event-transaction-hash").text("Transaction hash: " + sc_event.tx_hash);
+		$("#testModalDiv #sc-event-block-number").text("Block number: " + sc_event.block_number);
+		$("#testModalDiv #sc-event-payload-type").text("Payload Type: " + sc_event.event_payload.type);
+		$("#testModalDiv #sc-event-payload-value").text("Payload value: " + sc_event.event_payload.value);
 	} else {
 		$("#testModalDiv #sc-event").text("Listened event: ");
 		$("#testModalDiv #sc-event-type").text("Event type: " + sc_event.event_type);
@@ -514,9 +523,6 @@ $(document).on("click", ".open-testInfoModal", function() {
 		$("#testModalDiv #sc-event-payload-value").text("Payload value: " + sc_event.event_payload.value);
 
 	}
-	// sc_event == null? $("#testModalDiv #sc-event").text("Listened event: N/A") : $("#testModalDiv #sc-event").text("Listened event: " + sc_event);
-	// console.log(testCase.expected_payload_type);
-	// console.log(testCase.expected_payload_value);
 
 });
 

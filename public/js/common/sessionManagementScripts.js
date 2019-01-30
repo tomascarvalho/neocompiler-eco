@@ -88,6 +88,7 @@ function getUserTestSuites() {
             result.forEach((testSuite) => {
                 savedTestSuitesArray.push(testSuite);
             });
+            drawTestSuiteTable('divSavedTestSuites');
         },
         error: function (error) {
             console.log("Failed");
