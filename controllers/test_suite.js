@@ -20,7 +20,8 @@ module.exports = {
           include: [{
             model: TestCase,
             as: 'testCases',
-          }]
+          }],
+          order: [ [ { model: TestCase, as: 'testCases' }, 'id', 'ASC' ] ]
         })
         .then(testSuites=> res.status(200).send(testSuites))
         .catch(error => res.status(400).send(error));
@@ -32,6 +33,7 @@ module.exports = {
             model: TestCase,
             as: 'testCases',
           }],
+          order: [ [ { model: TestCase, as: 'testCases' }, 'id', 'ASC' ] ]
         })
         .then(testSuite => {
             if (!testSuite) {
