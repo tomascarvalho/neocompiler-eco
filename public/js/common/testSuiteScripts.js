@@ -486,6 +486,7 @@ $(document).on("click", ".open-testSuiteModal", function () {
 // Creating (POST) a new test suite or Editing (PUT) a saved test suite
 $("#test-suite-form").submit(function (e) {
 	e.preventDefault(); // Prevents the page from refreshing
+	console.log("heihaonva");
 	$("#close-test-suite-modal").click();
    	let indata = $('input[name!=testSuiteId]', this).serialize();
 	let testSuiteId = $('input[name=testSuiteId]', this).val();
@@ -567,6 +568,9 @@ function searchForTestSuite(indexToUpdate, testSuiteID) {
         }
     });
 }
+
+var subscribeClickEvent = function(id, func) {$(document).one("click", id, func);};
+
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

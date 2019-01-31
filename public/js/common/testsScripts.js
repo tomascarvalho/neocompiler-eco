@@ -528,11 +528,10 @@ $(document).on("click", ".open-testInfoModal", function() {
 
 
 // Adds a test to a test suite
-document.getElementById("add-to-suite-button").addEventListener("click", (e) => {
-
+$(document).on("click", "#add-to-suite-button", function (e) {
 	e.preventDefault(); // Prevents the page from refreshing
 	$("#close-add-to-test-suite-modal").click();
-
+	console.log("CLICK");
 	var indata = $("#formTests").serialize() + "&" + $("#formInvokeBeforeTest").serialize();
 	let testSuiteID = $("#select-test-suite-id").val();
 	let testCaseId = $("#pick-test-suite-form #testCaseId").val();
